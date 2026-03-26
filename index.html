@@ -425,7 +425,11 @@ const DAYS_SHORT=['Dl','Dt','Dc','Dj','Dv','Ds','Dg'];
 const WEEK_LABELS=['Dg','Dl','Dt','Dc','Dj','Dv','Ds'];
 const PHRASES=['Cada dia una nova llengua, cada llengua un nou món.','La consistència és el secret del poliglota.','Avui practiques, demà parles amb fluïdesa.','Les llengües obren portes que res més pot obrir.'];
 
-function getRot(d){return d<=28?ROTATIONS[(d-1)%4]:ROTATIONS[(d*7919)%4];}
+function getRot(d,m,y){
+  if(d<=28)return ROTATIONS[(d-1)%4];
+  const seed=((y*31+m)*37+d);
+  return ROTATIONS[((seed*7919+1327)>>>0)%4];
+}
 
 // ══════════════════════════════════════════════════════════════
 // STORAGE
@@ -450,7 +454,7 @@ function renderAvui(){
   b.textContent=isRnd?'🎲 Aleatori':'📅 Seqüencial';
   b.className='mode-badge'+(isRnd?'':' seq');
   document.getElementById('footerNote').textContent=PHRASES[(RD-1)%PHRASES.length];
-  const tasks=getRot(RD);
+  const tasks=getRot(RD,RM,RY);
   const list=document.getElementById('taskList');list.innerHTML='';
   tasks.forEach((t,i)=>{
     const done=todaySet.has(i);
@@ -510,7 +514,7 @@ function renderCal(){
   }
 }
 function showDetail(d,set){
-  const tasks=getRot(d);
+  const tasks=getRot(d,histM,histY);
   document.getElementById('detailTitle').textContent=`${d} de ${MONTHS[histM-1]} ${histY}`;
   const cont=document.getElementById('detailTasks');cont.innerHTML='';
   tasks.forEach((t,i)=>{
@@ -551,7 +555,7 @@ function renderStats(){
     const [,y,mo,d]=[...m].map(Number);
     const set=loadSet(y,mo,d);if(set.size===0)return;
     totDays++;if(set.size===4)compDays++;totTasks+=set.size;
-    getRot(d).forEach((t,i)=>{
+    getRot(d,mo,y).forEach((t,i)=>{
       langTot[t.lang]=(langTot[t.lang]||0)+1;akTot[t.ak]=(akTot[t.ak]||0)+1;
       if(set.has(i)){langDone[t.lang]=(langDone[t.lang]||0)+1;akDone[t.ak]=(akDone[t.ak]||0)+1;}
     });
@@ -741,7 +745,7 @@ document.getElementById('exportCsvBtn').addEventListener('click',()=>{
     const m=k.match(/^poly_(\d{4})_(\d{2})_(\d{2})$/);if(!m)return;
     const [,y,mo,d]=[...m].map(Number);
     const set=loadSet(y,mo,d);if(set.size===0)return;
-    const tasks=getRot(d);
+    const tasks=getRot(d,mo,y);
     const dateStr=`${d.toString().padStart(2,'0')}/${mo.toString().padStart(2,'0')}/${y}`;
     const t1=set.has(0)?`${tasks[0].action} ${tasks[0].lang}`:'';
     const t2=set.has(1)?`${tasks[1].action} ${tasks[1].lang}`:'';
