@@ -2,7 +2,7 @@
   "name": "Poliglota Diari",
   "short_name": "Poliglota",
   "description": "Programa diari de pràctica de 4 llengües",
-  "start_url": "https://hpguardiola-commits.github.io/Rutina_llengues/INDEX.HTML",
+  "start_url": "https://hpguardiola-commits.github.io/Rutina_llengues/index.html",
   "display": "standalone",
   "background_color": "#0b0b12",
   "theme_color": "#0d0d14",
