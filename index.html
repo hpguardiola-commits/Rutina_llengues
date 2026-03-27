@@ -105,8 +105,12 @@
     .dd-close{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:2px 6px;line-height:1;}
     .det-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
     .det-row:last-child{border-bottom:none;}
+    .det-row.editable{cursor:pointer;border-radius:8px;margin:0 -6px;padding:7px 6px;transition:background .15s;}
+    .det-row.editable:hover{background:rgba(255,255,255,.04);}
     .det-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
     .det-done{margin-left:auto;font-size:15px;}
+    .edit-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent3);border:1px solid rgba(78,203,175,.35);border-radius:4px;padding:2px 7px;margin-left:8px;}
+    .day-detail.editable-mode{border-color:rgba(78,203,175,.35);}
 
     /* STATS */
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
@@ -513,18 +517,55 @@ function renderCal(){
     const dots=document.createElement('div');dots.className='cal-dots';
     for(let k=0;k<4;k++){const dot=document.createElement('div');dot.className='cal-dot';dot.style.background=set.has(k)?Object.values(AK_COLOR)[k]:'var(--border)';dots.appendChild(dot);}
     el.innerHTML=`<span>${d}</span>`;el.appendChild(dots);
-    el.addEventListener('click',()=>showDetail(d,set));
+    el.addEventListener('click',()=>showDetail(d,loadSet(histY,histM,d)));
     grid.appendChild(el);
   }
 }
 function showDetail(d,set){
   const tasks=getRot(d,histM,histY);
-  document.getElementById('detailTitle').textContent=`${d} de ${MONTHS[histM-1]} ${histY}`;
+  // Editable si és dins dels últims 7 dies (sense comptar avui, que s'edita des de la pestanya Avui)
+  const clickedDate=new Date(histY,histM-1,d);
+  const todayDate=new Date(RY,RM-1,RD);
+  const diffDays=Math.round((todayDate-clickedDate)/(1000*60*60*24));
+  const editable=diffDays>=1&&diffDays<=7;
+
+  const titleEl=document.getElementById('detailTitle');
+  titleEl.innerHTML=`${d} de ${MONTHS[histM-1]} ${histY}${editable?` <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3);letter-spacing:.1em;vertical-align:middle;margin-left:6px">✏️ EDITABLE</span>`:''}`;
+
   const cont=document.getElementById('detailTasks');cont.innerHTML='';
+  // Treballem amb una còpia mutable del set
+  let editSet=new Set(set);
+
   tasks.forEach((t,i)=>{
-    const done=set.has(i);
     const row=document.createElement('div');row.className='det-row';
-    row.innerHTML=`<div class="det-dot" style="background:${Object.values(AK_COLOR)[i]}"></div><span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">${t.action}</span><span style="font-family:'Playfair Display',serif;font-size:14px;margin-left:5px">${t.lang} ${t.flag}</span><span class="det-done">${done?'✅':'⬜'}</span>`;
+    if(editable)row.style.cursor='pointer';
+
+    const renderRow=()=>{
+      const done=editSet.has(i);
+      row.innerHTML=`
+        <div class="det-dot" style="background:${Object.values(AK_COLOR)[i]}"></div>
+        <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">${t.action}</span>
+        <span style="font-family:'Playfair Display',serif;font-size:14px;margin-left:5px">${t.lang} ${t.flag}</span>
+        <span class="det-done" style="display:flex;align-items:center;gap:8px">
+          ${done?'✅':'⬜'}
+          ${editable?`<span style="font-size:11px;color:${done?'var(--accent3)':'var(--muted)'};border:1px solid ${done?'rgba(78,203,175,.4)':'var(--border)'};border-radius:6px;padding:2px 7px;transition:all .2s">${done?'Fet':'Marcar'}</span>`:''}
+        </span>`;
+    };
+    renderRow();
+
+    if(editable){
+      row.addEventListener('click',()=>{
+        if(editSet.has(i))editSet.delete(i);else editSet.add(i);
+        saveSet(histY,histM,d,editSet);
+        // Si és avui, actualitza també todaySet
+        if(diffDays===0){todaySet=editSet;renderAvui();}
+        renderRow();
+        // Actualitza els punts del calendari
+        renderCal();
+        renderHistStats();
+        showToast(`${editSet.has(i)?'✓ Marcat':'○ Desmarcat'}: ${t.action} ${t.lang}`,'success');
+      });
+    }
     cont.appendChild(row);
   });
   document.getElementById('dayDetail').classList.add('vis');
