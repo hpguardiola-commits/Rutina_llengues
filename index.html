@@ -276,6 +276,46 @@
     <div class="progress-label"><span>Progrés diari</span><span id="progressText">0 / 4</span></div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
+  <div class="divider" style="margin-top:24px"><span>Sessions extra</span></div>
+  <div id="extraList"></div>
+  <button class="action-btn" id="addExtraBtn" style="margin-top:4px">
+    <span class="btn-icon">➕</span>
+    <span class="btn-text">Afegir sessió extra</span>
+    <span class="btn-arrow">›</span>
+  </button>
+  <div id="extraForm" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:8px">
+    <div style="font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Nova sessió extra</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Llengua</div>
+        <select id="extraLang" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 10px;-webkit-appearance:none">
+          <option value="Anglès">🇬🇧 Anglès</option>
+          <option value="Francès">🇫🇷 Francès</option>
+          <option value="Italià">🇮🇹 Italià</option>
+          <option value="Alemany">🇩🇪 Alemany</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Tipus</div>
+        <select id="extraType" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 10px;-webkit-appearance:none">
+          <option value="Escoltar">🎧 Escoltar</option>
+          <option value="Llegir">📖 Llegir</option>
+          <option value="Parlar">🗣️ Parlar</option>
+          <option value="Escriure">✍️ Escriure</option>
+          <option value="Vocabulari">📝 Vocabulari</option>
+          <option value="Gramàtica">📐 Gramàtica</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Nota (opcional)</div>
+      <input id="extraNote" type="text" placeholder="p.ex. Podcast, pàgina 34..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 10px" maxlength="60"/>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button id="extraCancel" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer">Cancel·lar</button>
+      <button id="extraSave" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(78,203,175,.4);background:rgba(78,203,175,.12);color:var(--accent3);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;font-weight:700">Guardar</button>
+    </div>
+  </div>
   <div class="footer-note" id="footerNote"></div>
 </div>
 </div>
@@ -483,6 +523,7 @@ function renderAvui(){
     list.appendChild(card);
   });
   updateProgress();
+  renderExtras();
 }
 function updateProgress(){
   const c=todaySet.size;
@@ -568,6 +609,19 @@ function showDetail(d,set){
     }
     cont.appendChild(row);
   });
+  // Sessions extra del dia
+  const extras=loadExtras(histY,histM,d);
+  if(extras.length){
+    const exTitle=document.createElement('div');
+    exTitle.style.cssText='font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px;padding-top:8px;border-top:1px solid var(--border)';
+    exTitle.textContent='Sessions extra';
+    cont.appendChild(exTitle);
+    extras.forEach(e=>{
+      const row=document.createElement('div');row.className='det-row';
+      row.innerHTML=`<div class="det-dot" style="background:var(--accent4)"></div><span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">${e.type}</span><span style="font-family:'Playfair Display',serif;font-size:14px;margin-left:5px">${LANG_FLAGS[e.lang]||''} ${e.lang}</span>${e.note?`<span style="font-size:10px;color:var(--muted);margin-left:auto">${e.note}</span>`:'<span class="det-done">⭐</span>'}`;
+      cont.appendChild(row);
+    });
+  }
   document.getElementById('dayDetail').classList.add('vis');
 }
 document.getElementById('detailClose').addEventListener('click',()=>document.getElementById('dayDetail').classList.remove('vis'));
@@ -588,33 +642,133 @@ document.getElementById('prevMonth').addEventListener('click',()=>{histM--;if(hi
 document.getElementById('nextMonth').addEventListener('click',()=>{histM++;if(histM>12){histM=1;histY++;}renderHistoric();});
 
 // ══════════════════════════════════════════════════════════════
-// STATS
+// SESSIONS EXTRA
 // ══════════════════════════════════════════════════════════════
-function renderStats(){
-  const keys=allPolyKeys();
-  let totDays=0,compDays=0,totTasks=0;
-  const langDone={Anglès:0,Francès:0,Italià:0,Alemany:0},langTot={Anglès:0,Francès:0,Italià:0,Alemany:0};
-  const akDone={escoltar1:0,escoltar2:0,llegir:0,parlar:0},akTot={escoltar1:0,escoltar2:0,llegir:0,parlar:0};
-  keys.forEach(k=>{
-    const m=k.match(/^poly_(\d{4})_(\d{2})_(\d{2})$/);if(!m)return;
-    const [,y,mo,d]=[...m].map(Number);
-    const set=loadSet(y,mo,d);if(set.size===0)return;
-    totDays++;if(set.size===4)compDays++;totTasks+=set.size;
-    getRot(d,mo,y).forEach((t,i)=>{
-      langTot[t.lang]=(langTot[t.lang]||0)+1;akTot[t.ak]=(akTot[t.ak]||0)+1;
-      if(set.has(i)){langDone[t.lang]=(langDone[t.lang]||0)+1;akDone[t.ak]=(akDone[t.ak]||0)+1;}
+const EXTRA_ICONS={'Escoltar':'🎧','Llegir':'📖','Parlar':'🗣️','Escriure':'✍️','Vocabulari':'📝','Gramàtica':'📐'};
+const LANG_FLAGS={Anglès:'🇬🇧',Francès:'🇫🇷',Italià:'🇮🇹',Alemany:'🇩🇪'};
+
+function extraKey(y,m,d){return`poly_extra_${y}_${String(m).padStart(2,'0')}_${String(d).padStart(2,'0')}`;}
+function loadExtras(y,m,d){try{const s=localStorage.getItem(extraKey(y,m,d));return s?JSON.parse(s):[];}catch{return[];}}
+function saveExtras(y,m,d,arr){try{localStorage.setItem(extraKey(y,m,d),JSON.stringify(arr));}catch{}}
+
+function renderExtras(){
+  const extras=loadExtras(RY,RM,RD);
+  const list=document.getElementById('extraList');
+  list.innerHTML='';
+  extras.forEach((e,i)=>{
+    const card=document.createElement('div');
+    card.style.cssText='background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;position:relative;overflow:hidden';
+    // Franja lateral porpra
+    const bar=document.createElement('div');
+    bar.style.cssText='position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent4);border-radius:3px 0 0 3px';
+    card.appendChild(bar);
+    card.innerHTML+=`
+      <div style="font-size:22px;flex-shrink:0;width:32px;text-align:center">${EXTRA_ICONS[e.type]||'⭐'}</div>
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${e.type} · Extra</div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700">${LANG_FLAGS[e.lang]||''} ${e.lang}</div>
+        ${e.note?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${e.note}</div>`:''}
+      </div>
+      <button data-idx="${i}" class="del-extra-btn" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:color .2s" title="Eliminar">✕</button>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.del-extra-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const idx=parseInt(btn.dataset.idx);
+      const arr=loadExtras(RY,RM,RD);
+      arr.splice(idx,1);
+      saveExtras(RY,RM,RD,arr);
+      renderExtras();
+      showToast('Sessió eliminada');
     });
   });
-  let streak=0;const chk=new Date(RY,RM-1,RD);
-  while(true){const y=chk.getFullYear(),m=chk.getMonth()+1,d=chk.getDate();if(loadSet(y,m,d).size===4){streak++;chk.setDate(chk.getDate()-1);}else break;}
+}
+
+document.getElementById('addExtraBtn').addEventListener('click',()=>{
+  document.getElementById('extraForm').style.display='block';
+  document.getElementById('addExtraBtn').style.display='none';
+  document.getElementById('extraNote').value='';
+});
+document.getElementById('extraCancel').addEventListener('click',()=>{
+  document.getElementById('extraForm').style.display='none';
+  document.getElementById('addExtraBtn').style.display='flex';
+});
+document.getElementById('extraSave').addEventListener('click',()=>{
+  const lang=document.getElementById('extraLang').value;
+  const type=document.getElementById('extraType').value;
+  const note=document.getElementById('extraNote').value.trim();
+  const arr=loadExtras(RY,RM,RD);
+  arr.push({lang,type,note,ts:Date.now()});
+  saveExtras(RY,RM,RD,arr);
+  document.getElementById('extraForm').style.display='none';
+  document.getElementById('addExtraBtn').style.display='flex';
+  renderExtras();
+  showToast(`✓ ${type} ${lang} afegit`,'success');
+});
+
+// ══════════════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════════════
+
+// Retorna si el dia actual ja ha de comptar (≥ 22:00)
+function todayCountsForStats(){
+  return now.getHours()>=22;
+}
+
+// Retorna la data del primer registre existent
+function firstRegisteredDate(){
+  const keys=allPolyKeys().filter(k=>/^poly_\d{4}_\d{2}_\d{2}$/.test(k));
+  if(!keys.length)return null;
+  keys.sort();
+  const m=keys[0].match(/^poly_(\d{4})_(\d{2})_(\d{2})$/);
+  return new Date(+m[1],+m[2]-1,+m[3]);
+}
+
+function renderStats(){
+  // Rang de dies a comptar: des del primer registre fins ahir (o avui si ≥22h)
+  const firstDate=firstRegisteredDate();
+  const includeToday=todayCountsForStats();
+  const lastDate=includeToday?new Date(RY,RM-1,RD):new Date(RY,RM-1,RD-1);
+
+  let totDays=0,compDays=0,missedDays=0,totTasks=0;
+  const langDone={Anglès:0,Francès:0,Italià:0,Alemany:0},langTot={Anglès:0,Francès:0,Italià:0,Alemany:0};
+  const akDone={escoltar1:0,escoltar2:0,llegir:0,parlar:0},akTot={escoltar1:0,escoltar2:0,llegir:0,parlar:0};
+
+  if(firstDate){
+    const cursor=new Date(firstDate);
+    while(cursor<=lastDate){
+      const y=cursor.getFullYear(),mo=cursor.getMonth()+1,d=cursor.getDate();
+      const set=loadSet(y,mo,d);
+      totDays++;
+      if(set.size===4)compDays++;
+      else if(set.size===0)missedDays++;
+      totTasks+=set.size;
+      // Per llengua i acció
+      getRot(d,mo,y).forEach((t,i)=>{
+        langTot[t.lang]=(langTot[t.lang]||0)+1;akTot[t.ak]=(akTot[t.ak]||0)+1;
+        if(set.has(i)){langDone[t.lang]=(langDone[t.lang]||0)+1;akDone[t.ak]=(akDone[t.ak]||0)+1;}
+      });
+      cursor.setDate(cursor.getDate()+1);
+    }
+  }
+
+  // Streak: dies seguits complets fins avui (o ahir si avui no compta)
+  let streak=0;
+  const chk=new Date(includeToday?new Date(RY,RM-1,RD):new Date(RY,RM-1,RD-1));
+  while(true){
+    const y=chk.getFullYear(),m=chk.getMonth()+1,d=chk.getDate();
+    if(loadSet(y,m,d).size===4){streak++;chk.setDate(chk.getDate()-1);}else break;
+  }
   document.getElementById('streakCount').textContent=streak;
+
   const gPct=totDays>0?Math.round(compDays/totDays*100):0;
   const gc=gPct>=80?'teal':gPct>=50?'gold':'red';
+  const todayNote=!includeToday?` <span style="font-size:9px;color:var(--muted)">(avui pendent fins les 22h)</span>`:'';
   document.getElementById('globalStats').innerHTML=`
-    <div class="stat-card"><div class="stat-num gold">${totDays}</div><div class="stat-label">Dies registrats</div></div>
+    <div class="stat-card"><div class="stat-num gold">${totDays}</div><div class="stat-label">Dies comptats${todayNote}</div></div>
     <div class="stat-card"><div class="stat-num teal">${compDays}</div><div class="stat-label">Dies complets</div></div>
-    <div class="stat-card"><div class="stat-num purple">${totTasks}</div><div class="stat-label">Tasques totals</div></div>
-    <div class="stat-card"><div class="stat-num ${gc}">${gPct}%</div><div class="stat-label">% Global</div></div>`;
+    <div class="stat-card"><div class="stat-num red">${missedDays}</div><div class="stat-label">Dies sense registre</div></div>
+    <div class="stat-card"><div class="stat-num ${gc}">${gPct}%</div><div class="stat-label">% Compliment real</div></div>`;
   const wb=document.getElementById('weekBars'),wl=document.getElementById('weekLabels');wb.innerHTML='';wl.innerHTML='';
   for(let i=6;i>=0;i--){
     const dd=new Date(RY,RM-1,RD-i);
