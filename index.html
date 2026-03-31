@@ -3,2021 +3,1031 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#0d1117"/>
-  <meta name="description" content="Tassa de sudoració - Registre i estimació per carreres"/>
-  <title>SudorLab</title>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta name="theme-color" content="#0b0b12"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="SudorLab"/>
+  <title>Poliglota Diari</title>
+  <link rel="manifest" href="manifest.json"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --bg: #0d1117;
-      --bg2: #161b24;
-      --surface: #1c2333;
-      --surface2: #222d3f;
-      --border: #2d3a50;
-      --accent: #38bdf8;
-      --accent2: #fb923c;
-      --accent3: #34d399;
-      --warn: #f87171;
-      --text: #e2e8f4;
-      --muted: #64748b;
-      --font-h: 'Syne', sans-serif;
-      --font-b: 'IBM Plex Sans', sans-serif;
-    }
+    :root{--bg:#0b0b12;--surface:#13131f;--border:#22223a;--accent1:#f5c842;--accent2:#e8553e;--accent3:#4ecbaf;--accent4:#a78bfa;--text:#f0eee8;--muted:#7a7a9a;--card-bg:#16162a;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;position:relative;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 20%,rgba(167,139,250,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 85% 80%,rgba(78,203,175,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 50% 50%,rgba(245,200,66,.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    .grain{position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:50;background:rgba(11,11,18,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;}
+    .nav-tab{flex:1;padding:12px 2px 9px;background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:color .2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .nav-tab .ti{font-size:16px;}
+    .nav-tab.active{color:var(--accent1);}
+    .tab-line{height:2px;width:20px;border-radius:2px;background:transparent;transition:background .2s;}
+    .nav-tab.active .tab-line{background:var(--accent1);}
 
-    html, body {
-      max-width: 100vw;
-      overflow-x: hidden;
-    }
+    /* PAGES */
+    .page{display:none;animation:fadeIn .3s ease both;}
+    .page.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .container{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:22px 18px 80px;}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-b);
-      min-height: 100dvh;
-    }
+    /* HEADER */
+    .header{text-align:center;margin-bottom:20px;}
+    .header-eyebrow{font-size:10px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
+    .header h1{font-family:'Playfair Display',serif;font-size:clamp(26px,7vw,36px);font-weight:900;letter-spacing:-.02em;background:linear-gradient(135deg,var(--text) 0%,var(--accent1) 50%,var(--accent4) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+    .date-chip{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 16px;margin:12px 0;font-size:12px;color:var(--muted);}
+    .date-chip .dn{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--accent1);}
+    .mode-badge{display:inline-block;border-radius:4px;padding:2px 8px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;margin-top:4px;background:rgba(232,85,62,.15);border:1px solid rgba(232,85,62,.4);color:var(--accent2);}
+    .mode-badge.seq{background:rgba(78,203,175,.1);border-color:rgba(78,203,175,.35);color:var(--accent3);}
 
-    /* ── NAV ── */
-    .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(13,17,23,0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0.6rem 0.8rem;
-    }
+    /* DIVIDER */
+    .divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .divider span{font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;white-space:nowrap;}
 
-    .nav-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
+    /* TASKS */
+    .tasks{display:flex;flex-direction:column;gap:10px;}
+    .task-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:15px 16px;display:flex;align-items:center;gap:13px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;animation:slideIn .45s ease both;}
+    .task-card:nth-child(1){animation-delay:.08s}.task-card:nth-child(2){animation-delay:.16s}.task-card:nth-child(3){animation-delay:.24s}.task-card:nth-child(4){animation-delay:.32s}
+    .task-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+    .task-card:hover{transform:translateX(4px);box-shadow:0 8px 28px rgba(0,0,0,.3);}
+    .task-card.done{opacity:.45;}
+    .task-card.done .task-lang{text-decoration:line-through;}
+    .task-card[data-ak="escoltar1"]{border-color:rgba(245,200,66,.25);}
+    .task-card[data-ak="escoltar1"]::before{background:var(--accent1);}
+    .task-card[data-ak="escoltar2"]{border-color:rgba(167,139,250,.25);}
+    .task-card[data-ak="escoltar2"]::before{background:var(--accent4);}
+    .task-card[data-ak="llegir"]{border-color:rgba(78,203,175,.25);}
+    .task-card[data-ak="llegir"]::before{background:var(--accent3);}
+    .task-card[data-ak="parlar"]{border-color:rgba(232,85,62,.25);}
+    .task-card[data-ak="parlar"]::before{background:var(--accent2);}
+    .task-icon{font-size:25px;flex-shrink:0;width:38px;text-align:center;}
+    .task-info{flex:1;}
+    .task-action{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+    .task-lang{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;line-height:1;}
+    .task-flag{font-size:27px;flex-shrink:0;}
+    .check-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;transition:all .2s;flex-shrink:0;}
+    .check-btn:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(78,203,175,.1);}
+    .task-card.done .check-btn{background:var(--accent3);border-color:var(--accent3);color:#000;}
 
-    .nav-brand {
-      font-family: var(--font-h);
-      font-size: 1.2rem;
-      color: var(--accent);
-      letter-spacing: -0.01em;
-    }
-    .nav-brand span { color: var(--accent2); }
+    /* PROGRESS */
+    .progress-section{margin-top:20px;}
+    .progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px;letter-spacing:.1em;}
+    .progress-bar{height:5px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent1));border-radius:4px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
 
-    .nav-tabs {
-      display: flex;
-      gap: 0.2rem;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-    }
-    .nav-tabs::-webkit-scrollbar { display: none; }
+    /* CALENDAR */
+    .month-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;}
+    .month-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+    .month-btn:hover{border-color:var(--accent1);color:var(--accent1);}
+    .month-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--accent1);min-width:130px;text-align:center;}
+    .cal-legend{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+    .cal-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+    .cal-legend-dot{width:10px;height:10px;border-radius:3px;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px;}
+    .cal-dow{text-align:center;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;padding:3px 0;}
+    .cal-day{aspect-ratio:1;border-radius:10px;background:var(--card-bg);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;position:relative;gap:2px;}
+    .cal-day.empty{background:transparent;border-color:transparent;cursor:default;}
+    .cal-day.today{border-color:rgba(245,200,66,.6);color:var(--accent1);font-weight:700;}
+    .cal-day.has-data{color:var(--text);}
+    .cal-day.full{background:rgba(78,203,175,.13);border-color:rgba(78,203,175,.45);}
+    .cal-day.partial{background:rgba(245,200,66,.09);border-color:rgba(245,200,66,.35);}
+    .cal-day.missed{background:rgba(232,85,62,.07);border-color:rgba(232,85,62,.22);}
+    .cal-day:not(.empty):hover{transform:scale(1.1);z-index:2;}
+    .cal-dots{display:flex;gap:2px;justify-content:center;}
+    .cal-dot{width:4px;height:4px;border-radius:50%;}
 
-    .nav-tab {
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      color: var(--muted);
-      font-family: var(--font-b);
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.6rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .nav-tab.active {
-      background: var(--surface);
-      border-color: var(--border);
-      color: var(--accent);
-    }
+    /* DAY DETAIL */
+    .day-detail{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:15px 16px;margin-bottom:14px;display:none;}
+    .day-detail.vis{display:block;animation:fadeIn .25s ease;}
+    .dd-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .dd-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+    .dd-close{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:2px 6px;line-height:1;}
+    .det-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
+    .det-row:last-child{border-bottom:none;}
+    .det-row.editable{cursor:pointer;border-radius:8px;margin:0 -6px;padding:7px 6px;transition:background .15s;}
+    .det-row.editable:hover{background:rgba(255,255,255,.04);}
+    .det-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .det-done{margin-left:auto;font-size:15px;}
+    .edit-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent3);border:1px solid rgba(78,203,175,.35);border-radius:4px;padding:2px 7px;margin-left:8px;}
+    .day-detail.editable-mode{border-color:rgba(78,203,175,.35);}
 
-    /* ── PAGES ── */
-    .page { display: none; padding: 1rem; max-width: 600px; margin: 0 auto; width: 100%; }
-    .page.active { display: block; animation: fadeUp 0.25s ease; }
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+    .stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px 12px;text-align:center;}
+    .stat-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1;}
+    .stat-num.gold{color:var(--accent1)}.stat-num.teal{color:var(--accent3)}.stat-num.purple{color:var(--accent4)}.stat-num.red{color:var(--accent2)}
+    .stat-label{font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:5px;}
+    .streak-card{background:var(--card-bg);border:1px solid rgba(245,200,66,.35);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+    .streak-flame{font-size:38px;}
+    .streak-count{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--accent1);line-height:1;}
+    .streak-text{font-size:10px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+    .week-chart{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:18px;}
+    .week-bars{display:flex;align-items:flex-end;gap:6px;height:60px;margin-bottom:7px;}
+    .week-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .week-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .5s ease;}
+    .week-bar.has{background:linear-gradient(to top,var(--accent3),var(--accent1));}
+    .week-bar.empty-bar{background:var(--border);}
+    .week-lbl{font-size:9px;color:var(--muted);letter-spacing:.04em;flex:1;text-align:center;}
+    .lang-bars{display:flex;flex-direction:column;gap:9px;margin-bottom:18px;}
+    .lang-bar-row{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:11px 14px;}
+    .lbr-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+    .lbr-name{display:flex;align-items:center;gap:7px;font-size:13px;}
+    .lbr-pct{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+    .lbr-track{height:5px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .lbr-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.34,1.56,.64,1);}
+    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .action-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;}
+    .action-icon{font-size:22px;margin-bottom:5px;}
+    .action-pct{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+    .action-name{font-size:9px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;margin-top:4px;}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* ── AJUSTOS ────────────────────────────────────────────────────── */
+    .settings-section{margin-bottom:24px;}
+    .settings-title{font-size:10px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
 
-    /* ── TYPOGRAPHY ── */
-    .page-title {
-      font-family: var(--font-h);
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 0.3rem;
+    /* Toggle row */
+    .setting-row{
+      background:var(--card-bg);border:1px solid var(--border);border-radius:14px;
+      padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;
     }
-    .page-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-bottom: 1.5rem;
-      font-weight: 500;
-    }
+    .setting-icon{font-size:22px;flex-shrink:0;}
+    .setting-info{flex:1;}
+    .setting-name{font-size:13px;color:var(--text);margin-bottom:2px;}
+    .setting-desc{font-size:10px;color:var(--muted);}
+    /* Toggle switch */
+    .toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:background .25s;}
+    .toggle input:checked + .toggle-track{background:var(--accent3);}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .25s;pointer-events:none;}
+    .toggle input:checked ~ .toggle-thumb{transform:translateX(20px);}
 
-    /* ── FORM ── */
-    .form-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.1rem;
-      margin-bottom: 1rem;
+    /* Time picker */
+    .time-row{
+      background:var(--card-bg);border:1px solid var(--border);border-radius:14px;
+      padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;
     }
+    .time-input{
+      background:var(--surface);border:1px solid var(--border);border-radius:8px;
+      color:var(--text);font-family:'DM Mono',monospace;font-size:18px;
+      padding:6px 10px;width:100px;text-align:center;
+      -webkit-appearance:none;
+    }
+    .time-input:focus{outline:none;border-color:var(--accent1);}
 
-    .form-section-title {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Action buttons */
+    .action-btn{
+      width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--border);
+      background:var(--card-bg);color:var(--text);font-family:'DM Mono',monospace;
+      font-size:12px;letter-spacing:.12em;cursor:pointer;
+      display:flex;align-items:center;gap:12px;margin-bottom:8px;
+      transition:all .2s ease;text-align:left;
     }
-    .form-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .action-btn:hover{border-color:var(--accent1);background:rgba(245,200,66,.06);}
+    .action-btn.danger:hover{border-color:var(--accent2);background:rgba(232,85,62,.08);}
+    .action-btn .btn-icon{font-size:20px;flex-shrink:0;}
+    .action-btn .btn-text{flex:1;}
+    .action-btn .btn-arrow{color:var(--muted);font-size:14px;}
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-    .form-grid.cols1 { grid-template-columns: 1fr; }
+    /* Notif status badge */
+    .notif-status{
+      display:inline-flex;align-items:center;gap:5px;
+      border-radius:6px;padding:3px 8px;font-size:10px;letter-spacing:.1em;
+      border:1px solid;margin-top:6px;
+    }
+    .notif-status.granted{background:rgba(78,203,175,.1);border-color:rgba(78,203,175,.4);color:var(--accent3);}
+    .notif-status.denied{background:rgba(232,85,62,.1);border-color:rgba(232,85,62,.4);color:var(--accent2);}
+    .notif-status.default{background:rgba(245,200,66,.08);border-color:rgba(245,200,66,.3);color:var(--accent1);}
 
-    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    /* Toast */
+    .toast{
+      position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:12px 20px;font-size:12px;color:var(--text);
+      z-index:200;opacity:0;transition:all .3s ease;pointer-events:none;
+      white-space:nowrap;max-width:90vw;text-align:center;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.success{border-color:rgba(78,203,175,.5);color:var(--accent3);}
+    .toast.error{border-color:rgba(232,85,62,.5);color:var(--accent2);}
 
-    .field label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .field label .req { color: var(--warn); margin-left: 2px; }
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:150;display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.show{display:flex;animation:fadeIn .2s ease;}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:400px;width:100%;}
+    .modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+    .modal-body{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px;}
+    .modal-actions{display:flex;gap:10px;}
+    .modal-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;}
+    .modal-btn.confirm{background:rgba(232,85,62,.15);border-color:rgba(232,85,62,.4);color:var(--accent2);}
+    .modal-btn:hover{opacity:.8;}
 
-    .field input, .field select {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-family: var(--font-b);
-      font-size: 1rem;
-      font-weight: 600;
-      padding: 0.6rem 0.8rem;
-      outline: none;
-      transition: border-color 0.15s;
-      width: 100%;
-    }
-    .field input:focus, .field select:focus { border-color: var(--accent); }
-    .field input::placeholder { color: var(--muted); font-weight: 400; }
+    .page-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:18px;}
+    .footer-note{text-align:center;margin-top:26px;font-size:11px;color:var(--muted);font-family:'Cormorant Garamond',serif;font-style:italic;}
+    .data-info{font-size:10px;color:var(--muted);text-align:center;padding:8px;line-height:1.6;}
 
-    .field .unit {
-      font-size: 0.65rem;
-      color: var(--accent2);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      margin-top: -0.15rem;
-    }
-
-    /* ── RESULT BOX ── */
-    .result-hero {
-      background: linear-gradient(135deg, var(--surface2) 0%, #1a2a3a 100%);
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 1.4rem;
-      margin: 1.2rem 0;
-      display: none;
-      animation: fadeUp 0.3s ease;
-    }
-    .result-hero.show { display: block; }
-
-    .result-main {
-      display: flex;
-      align-items: baseline;
-      gap: 0.4rem;
-      margin-bottom: 0.3rem;
-    }
-    .result-num {
-      font-family: var(--font-h);
-      font-size: 3.2rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1;
-    }
-    .result-unit {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-    .result-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.6rem;
-    }
-    .result-mini {
-      background: rgba(0,0,0,0.25);
-      border-radius: 6px;
-      padding: 0.7rem;
-    }
-    .result-mini-val {
-      font-family: var(--font-h);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .result-mini-label {
-      font-size: 0.62rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 0.15rem;
-    }
-
-    /* ── HYDRATION BADGE ── */
-    .hydro-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      border-radius: 6px;
-      padding: 0.45rem 0.8rem;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-top: 0.8rem;
-    }
-    .hydro-badge.ok   { background: rgba(52,211,153,0.15); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
-    .hydro-badge.mid  { background: rgba(251,146,60,0.15); color: var(--accent2); border: 1px solid rgba(251,146,60,0.3); }
-    .hydro-badge.bad  { background: rgba(248,113,113,0.15); color: var(--warn); border: 1px solid rgba(248,113,113,0.3); }
-
-    /* ── BUTTON ── */
-    .btn {
-      width: 100%;
-      background: var(--accent);
-      color: #0d1117;
-      border: none;
-      border-radius: 8px;
-      font-family: var(--font-h);
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: 0.03em;
-      padding: 0.9rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      margin-top: 0.5rem;
-    }
-    .btn:hover { background: #7dd3fc; }
-    .btn:active { transform: scale(0.99); }
-    .btn.secondary {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-family: var(--font-b);
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-top: 0.4rem;
-      padding: 0.65rem;
-    }
-    .btn.secondary:hover { color: var(--text); border-color: var(--text); background: transparent; }
-
-    .btn.orange {
-      background: var(--accent2);
-    }
-    .btn.orange:hover { background: #fdba74; }
-
-    /* ── HISTORY ── */
-    .history-empty {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-    .history-empty .icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-
-    .session-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.1rem;
-      margin-bottom: 0.8rem;
-      cursor: pointer;
-      transition: border-color 0.15s;
-      position: relative;
-    }
-    .session-card:hover { border-color: var(--accent); }
-
-    .session-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.7rem;
-    }
-    .session-date {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .session-rate {
-      font-family: var(--font-h);
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1;
-    }
-    .session-rate span {
-      font-family: var(--font-b);
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .session-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-    .chip {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--muted);
-      padding: 0.2rem 0.5rem;
-      letter-spacing: 0.05em;
-    }
-    .chip.hi { color: var(--accent2); border-color: rgba(251,146,60,0.3); }
-
-    .delete-btn {
-      position: absolute;
-      top: 0.8rem;
-      right: 0.8rem;
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-size: 1rem;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0.2rem;
-      opacity: 0.4;
-      transition: opacity 0.15s;
-    }
-    .delete-btn:hover { opacity: 1; color: var(--warn); }
-
-    /* ── RACE ESTIMATOR ── */
-    .estimator-card {
-      background: linear-gradient(135deg, #1a1f2e 0%, #1c2a1e 100%);
-      border: 1px solid var(--accent3);
-      border-radius: 12px;
-      padding: 1.3rem;
-      margin-bottom: 1rem;
-    }
-
-    .race-result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.8rem;
-      margin-top: 1rem;
-    }
-
-    .race-stat {
-      background: rgba(0,0,0,0.3);
-      border-radius: 8px;
-      padding: 0.9rem;
-    }
-    .race-stat-val {
-      font-family: var(--font-h);
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--accent3);
-      line-height: 1;
-    }
-    .race-stat-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 0.2rem;
-    }
-
-    .race-stat.warn .race-stat-val { color: var(--warn); }
-    .race-stat.orange .race-stat-val { color: var(--accent2); }
-    .race-stat.blue .race-stat-val { color: var(--accent); }
-
-    .info-box {
-      background: rgba(56,189,248,0.07);
-      border: 1px solid rgba(56,189,248,0.2);
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text);
-      line-height: 1.7;
-      margin-top: 0.8rem;
-    }
-    .info-box strong { color: var(--accent); font-weight: 700; }
-
-    .avg-banner {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .avg-banner-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    .avg-banner-val {
-      font-family: var(--font-h);
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--accent);
-    }
-
-    /* Separator */
-    .sep {
-      height: 1px;
-      background: var(--border);
-      margin: 1.2rem 0;
-    }
-
-    @media (max-width: 380px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .result-num { font-size: 2.6rem; }
-    }
-
-    /* ── NAV compact for 5 tabs ── */
-    .nav-tab { padding: 0.4rem 0.55rem; font-size: 0.65rem; }
-
-    /* ── RITME PAGE ── */
-    .pace-hero {
-      background: linear-gradient(135deg, #1a1f2e 0%, #1f1a2e 100%);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.3rem;
-      margin-bottom: 1rem;
-    }
-    .pace-result-row {
-      display: flex;
-      align-items: baseline;
-      gap: 0.4rem;
-    }
-    .pace-big {
-      font-family: var(--font-h);
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1;
-    }
-    .pace-unit { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
-
-    .pace-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-      margin-top: 1rem;
-    }
-    .pace-stat {
-      background: rgba(0,0,0,0.3);
-      border-radius: 8px;
-      padding: 0.8rem;
-    }
-    .pace-stat-val {
-      font-family: var(--font-h);
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1;
-    }
-    .pace-stat-lbl {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 0.2rem;
-    }
-    .pace-stat.green .pace-stat-val { color: var(--accent3); }
-    .pace-stat.orange .pace-stat-val { color: var(--accent2); }
-    .pace-stat.blue .pace-stat-val { color: var(--accent); }
-
-    /* ascent toggle */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.8rem 1rem;
-      margin-bottom: 1rem;
-      cursor: pointer;
-    }
-    .toggle-label { font-size: 0.7rem; font-weight: 700; color: var(--text); letter-spacing: 0.08em; }
-    .toggle-sw {
-      width: 38px; height: 22px;
-      background: var(--border);
-      border-radius: 11px;
-      position: relative;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .toggle-sw.on { background: var(--accent2); }
-    .toggle-sw::after {
-      content:'';
-      position: absolute;
-      width: 16px; height: 16px;
-      background: white;
-      border-radius: 50%;
-      top: 3px; left: 3px;
-      transition: left 0.2s;
-    }
-    .toggle-sw.on::after { left: 19px; }
-
-    /* ── DADES PAGE ── */
-    .dades-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .dades-card-title {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.8rem;
-    }
-    .dades-info {
-      font-size: 0.8rem;
-      color: var(--muted);
-      font-weight: 500;
-      line-height: 1.6;
-      margin-bottom: 0.8rem;
-    }
-    .btn.green { background: var(--accent3); }
-    .btn.green:hover { background: #6ee7b7; }
-    .btn.red { background: var(--warn); }
-    .btn.red:hover { background: #fca5a5; }
-    .btn.small {
-      font-family: var(--font-b);
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 0.7rem;
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-    }
-    #import-file { display: none; }
-
-  .hist-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-family: var(--font-b);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 0.35rem 0.8rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
-  }
-  .hist-btn:hover { color: var(--text); border-color: var(--text); }
-  .hist-btn-on {
-    background: var(--surface2);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+    @keyframes slideIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+    .task-card.pop{animation:pop .3s ease;}
+    @media(max-width:360px){.task-lang{font-size:17px}}
   </style>
 </head>
 <body>
+<div class="grain"></div>
 
+<!-- NAV -->
 <nav class="nav">
-  <div class="nav-top">
-    <div class="nav-brand">Sudor<span>Lab</span></div>
-    <button id="install-btn" onclick="installApp()" style="display:none;background:var(--accent3);color:#0d1117;border:none;border-radius:6px;font-family:var(--font-b);font-size:0.65rem;font-weight:700;padding:0.35rem 0.7rem;cursor:pointer">⬇ Instal·lar</button>
-  </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="goTo('registre', this)">Sudor</button>
-    <button class="nav-tab" onclick="goTo('historial', this)">Historial</button>
-    <button class="nav-tab" onclick="goTo('carrera', this)">Carrera</button>
-    <button class="nav-tab" onclick="goTo('ritme', this)">Ritme</button>
-    <button class="nav-tab" onclick="goTo('sabates', this)">Sabates</button>
-    <button class="nav-tab" onclick="goTo('dades', this)">Dades</button>
-  </div>
+  <button class="nav-tab active" data-tab="avui"><span class="ti">📅</span><span>Avui</span><div class="tab-line"></div></button>
+  <button class="nav-tab" data-tab="historic"><span class="ti">📆</span><span>Històric</span><div class="tab-line"></div></button>
+  <button class="nav-tab" data-tab="stats"><span class="ti">📊</span><span>Stats</span><div class="tab-line"></div></button>
+  <button class="nav-tab" data-tab="ajustos"><span class="ti">⚙️</span><span>Ajustos</span><div class="tab-line"></div></button>
 </nav>
 
-<!-- ══════════════════ PÀGINA 1: REGISTRE ══════════════════ -->
-<div class="page active" id="page-registre">
-  <div class="page-title">Nova sessió</div>
-  <div class="page-sub">Registra els teus paràmetres per calcular la tassa de sudoració</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-  <!-- PES -->
-  <div class="form-section">
-    <div class="form-section-title">Pes corporal</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Pes abans <span class="req">*</span></label>
-        <input id="pes_abans" type="number" inputmode="decimal" step="0.1" placeholder="70.0"/>
-        <div class="unit">KG</div>
-      </div>
-      <div class="field">
-        <label>Pes després <span class="req">*</span></label>
-        <input id="pes_despres" type="number" inputmode="decimal" step="0.1" placeholder="69.0"/>
-        <div class="unit">KG</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LÍQUIDS -->
-  <div class="form-section">
-    <div class="form-section-title">Ingesta i eliminació</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Líquid ingerit</label>
-        <input id="liquid" type="number" inputmode="numeric" placeholder="500"/>
-        <div class="unit">ML</div>
-      </div>
-      <div class="field">
-        <label>Orina eliminada</label>
-        <input id="orina" type="number" inputmode="numeric" placeholder="0"/>
-        <div class="unit">ML</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SESSIÓ -->
-  <div class="form-section">
-    <div class="form-section-title">Sessió</div>
-    <div class="form-grid cols1" style="margin-bottom:0.6rem">
-      <div class="field">
-        <label>Temps total / Durada <span class="req">*</span></label>
-        <div style="display:flex;align-items:center;gap:0.3rem">
-          <div style="flex:1;display:flex;flex-direction:column">
-            <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">H</span>
-            <input id="p-h" type="number" inputmode="numeric" min="0" max="99" placeholder="0" style="text-align:center" oninput="autoCalc('temps')"/>
-          </div>
-          <div style="font-family:var(--font-h);font-size:1.4rem;color:var(--muted);padding-top:0.8rem">:</div>
-          <div style="flex:1;display:flex;flex-direction:column">
-            <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">MIN</span>
-            <input id="p-m" type="number" inputmode="numeric" min="0" max="59" placeholder="55" style="text-align:center" oninput="autoCalc('temps')"/>
-          </div>
-          <div style="font-family:var(--font-h);font-size:1.4rem;color:var(--muted);padding-top:0.8rem">:</div>
-          <div style="flex:1;display:flex;flex-direction:column">
-            <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">SEG</span>
-            <input id="p-s" type="number" inputmode="numeric" min="0" max="59" placeholder="00" style="text-align:center" oninput="autoCalc('temps')"/>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Distància</label>
-        <input id="p-km" type="number" inputmode="decimal" step="0.01" placeholder="10.0" oninput="autoCalc('dist')"/>
-        <div class="unit">KM</div>
-      </div>
-      <div class="field">
-        <label>Ritme</label>
-        <input id="ritme" type="text" inputmode="numeric" placeholder="5:30" maxlength="5" oninput="autoColon(this); autoCalc('ritme')"/>
-        <div class="unit">MIN/KM</div>
-      </div>
-      <div class="field">
-        <label>FC mitja</label>
-        <input id="fc" type="number" inputmode="numeric" placeholder="155"/>
-        <div class="unit">PPM</div>
-      </div>
-      <div class="field">
-        <label>Calories cremades</label>
-        <input id="calories" type="number" inputmode="numeric" placeholder="600"/>
-        <div class="unit">KCAL</div>
-      </div>
-    </div>
-    <div id="autocalc-hint-sudor" style="font-size:0.65rem;color:var(--accent3);font-weight:600;margin-top:0.4rem;display:none">⚡ Camp calculat automàticament</div>
-  </div>
-
-  <!-- AMBIENT -->
-  <div class="form-section">
-    <div class="form-section-title">Condicions ambientals</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Temperatura <span class="req">*</span></label>
-        <input id="temp" type="number" inputmode="numeric" placeholder="22"/>
-        <div class="unit">°C</div>
-      </div>
-      <div class="field">
-        <label>Humetat relativa</label>
-        <input id="humetat" type="number" inputmode="numeric" placeholder="65"/>
-        <div class="unit">%</div>
-      </div>
-    </div>
-  </div>
-
-  <button class="btn" onclick="calcular()">CALCULAR TASSA</button>
-  <button class="btn secondary" onclick="resetar()">↺ Netejar camps</button>
-
-  <!-- RESULTAT -->
-  <div class="result-hero" id="resultat">
-    <div class="result-label">Tassa de sudoració</div>
-    <div class="result-main">
-      <div class="result-num" id="r-tassa">—</div>
-      <div class="result-unit">mL/h</div>
-    </div>
-    <div id="r-badge"></div>
-
-    <div class="sep"></div>
-
-    <div class="result-grid">
-      <div class="result-mini">
-        <div class="result-mini-val" id="r-perdua">—</div>
-        <div class="result-mini-label">Pèrdua neta (mL)</div>
-      </div>
-      <div class="result-mini">
-        <div class="result-mini-val" id="r-pct">—</div>
-        <div class="result-mini-label">% Pes perdut</div>
-      </div>
-      <div class="result-mini">
-        <div class="result-mini-val" id="r-recomanat">—</div>
-        <div class="result-mini-label">Ingesta/hora ideal</div>
-      </div>
-      <div class="result-mini">
-        <div class="result-mini-val" id="r-deficit">—</div>
-        <div class="result-mini-label">Dèficit sessió (mL)</div>
-      </div>
-    </div>
-
-    <button class="btn" style="margin-top:1rem" onclick="guardar()">💾 GUARDAR SESSIÓ</button>
-  </div>
-</div>
-
-<!-- ══════════════════ PÀGINA 2: HISTORIAL ══════════════════ -->
-<div class="page" id="page-historial">
-  <div class="page-title">Historial</div>
-  <div class="page-sub">Les teves sessions registrades</div>
-  <div id="historial-content"></div>
-</div>
-
-<!-- ══════════════════ PÀGINA 3: CARRERA ══════════════════ -->
-<div class="page" id="page-carrera">
-  <div class="page-title">Estimació carrera</div>
-  <div class="page-sub">Calcula la ingesta necessària per al dia de la competició</div>
-
-  <div id="avg-info"></div>
-
-  <div class="form-section">
-    <div class="form-section-title">Paràmetres de la carrera</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Distància <span class="req">*</span></label>
-        <input id="r-dist" type="number" inputmode="decimal" placeholder="42.2"/>
-        <div class="unit">KM</div>
-      </div>
-      <div class="field">
-        <label>Ritme previst</label>
-        <input id="r-ritme" type="text" inputmode="numeric" placeholder="5:30" maxlength="5" oninput="autoColon(this); autoCalc('ritme')"/>
-        <div class="unit">MIN/KM</div>
-      </div>
-      <div class="field">
-        <label>Temperatura</label>
-        <input id="r-temp" type="number" inputmode="numeric" placeholder="20"/>
-        <div class="unit">°C</div>
-      </div>
-      <div class="field">
-        <label>Humetat</label>
-        <input id="r-hum" type="number" inputmode="numeric" placeholder="60"/>
-        <div class="unit">%</div>
-      </div>
-    </div>
-  </div>
-
-  <button class="btn orange" onclick="estimarCarrera()">ESTIMAR NECESSITATS</button>
-
-  <div id="carrera-result" style="display:none; margin-top:1.2rem; animation: fadeUp 0.3s ease;">
-    <div class="estimator-card">
-      <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent3);margin-bottom:0.4rem;">Estimació carrera</div>
-      <div style="font-family:var(--font-h);font-size:1rem;font-weight:800;color:var(--text)" id="cr-nom">—</div>
-
-      <div class="race-result-grid">
-        <div class="race-stat blue">
-          <div class="race-stat-val" id="cr-temps">—</div>
-          <div class="race-stat-label">Temps estimat</div>
-        </div>
-        <div class="race-stat">
-          <div class="race-stat-val" id="cr-tassa">—</div>
-          <div class="race-stat-label">Tassa ajustada (mL/h)</div>
-        </div>
-        <div class="race-stat warn">
-          <div class="race-stat-val" id="cr-total">—</div>
-          <div class="race-stat-label">Fluid total necessari</div>
-        </div>
-        <div class="race-stat orange">
-          <div class="race-stat-val" id="cr-hora">—</div>
-          <div class="race-stat-label">A beure per hora</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="info-box" id="cr-consell"></div>
-  </div>
-</div>
-
-<!-- ══════════════════ PÀGINA 4: RITME ══════════════════ -->
-<div class="page" id="page-ritme">
-  <div class="page-title">Calculadora de ritme</div>
-  <div class="page-sub">Ritme real i ajustat per ascens (×1,74 s/m)</div>
-
-  <!-- DISTÀNCIA -->
-  <div class="form-section">
-    <div class="form-section-title">Distància</div>
-    <div class="field">
-      <label>Kilòmetres</label>
-      <input id="p-km" type="number" inputmode="decimal" step="0.01" placeholder="10.0" oninput="autoCalc('dist')"/>
-      <div class="unit">KM</div>
-    </div>
-  </div>
-
-  <!-- TEMPS -->
-  <div class="form-section">
-    <div class="form-section-title">Temps total</div>
-    <div style="display:flex;align-items:center;gap:0.3rem">
-      <div style="flex:1;display:flex;flex-direction:column">
-        <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">H</span>
-        <input id="p-h" type="number" inputmode="numeric" min="0" max="99" placeholder="0" style="text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-b);font-size:1rem;font-weight:600;padding:0.6rem 0.4rem;outline:none;width:100%" oninput="autoCalc('temps')"/>
-      </div>
-      <div style="font-family:var(--font-h);font-size:1.6rem;color:var(--muted);padding-top:0.8rem">:</div>
-      <div style="flex:1;display:flex;flex-direction:column">
-        <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">MIN</span>
-        <input id="p-m" type="number" inputmode="numeric" min="0" max="59" placeholder="50" style="text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-b);font-size:1rem;font-weight:600;padding:0.6rem 0.4rem;outline:none;width:100%" oninput="autoCalc('temps')"/>
-      </div>
-      <div style="font-family:var(--font-h);font-size:1.6rem;color:var(--muted);padding-top:0.8rem">:</div>
-      <div style="flex:1;display:flex;flex-direction:column">
-        <span style="font-size:0.58rem;color:var(--muted);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem">SEG</span>
-        <input id="p-s" type="number" inputmode="numeric" min="0" max="59" placeholder="00" style="text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-b);font-size:1rem;font-weight:600;padding:0.6rem 0.4rem;outline:none;width:100%" oninput="autoCalc('temps')"/>
-      </div>
-    </div>
-    <div style="font-size:0.65rem;color:var(--muted);font-weight:500;margin-top:0.5rem">⚡ Sincronitzat amb el camp "Temps total" de Sudor</div>
-  </div>
-
-  <!-- RITME (calculat o introduït) -->
-  <div class="form-section">
-    <div class="form-section-title">Ritme</div>
-    <div class="field">
-      <label>Min/km (introdueix o es calcula sol)</label>
-      <input id="ritme" type="text" inputmode="numeric" placeholder="5:30" maxlength="5" oninput="autoColon(this); autoCalc('ritme')"/>
-      <div class="unit">MIN/KM</div>
-    </div>
-    <div id="autocalc-hint" style="font-size:0.65rem;color:var(--accent3);font-weight:600;margin-top:0.4rem;display:none">⚡ Camp calculat automàticament</div>
-  </div>
-  <div class="toggle-row" onclick="toggleAscens()">
-    <span class="toggle-label">Afegir ascens D+ <span style="font-size:0.6rem;background:var(--accent2);color:#0d1117;padding:0.15rem 0.4rem;border-radius:3px;margin-left:0.4rem;font-weight:700">AJUSTAT</span></span>
-    <div class="toggle-sw" id="ascens-toggle"></div>
-  </div>
-
-  <div id="ascens-section" style="display:none">
-    <div class="form-section">
-      <div class="form-section-title">Ascens</div>
-      <div class="field">
-        <label>Metres de desnivell positiu</label>
-        <input id="p-asc" type="number" inputmode="numeric" min="0" placeholder="500"/>
-        <div class="unit">M D+</div>
-      </div>
-    </div>
-  </div>
-
-  <button class="btn" onclick="calcRitme()">CALCULAR RITME</button>
-  <button class="btn secondary" onclick="resetRitme()">↺ Netejar</button>
-
-  <!-- RESULTAT RITME -->
-  <div id="ritme-result" style="display:none;margin-top:1.2rem;animation:fadeUp 0.3s ease">
-    <div class="pace-hero">
-      <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem">Ritme real</div>
-      <div class="pace-result-row">
-        <div class="pace-big" id="pr-ritme">—</div>
-        <div class="pace-unit">min/km</div>
-      </div>
-      <div class="pace-grid">
-        <div class="pace-stat blue">
-          <div class="pace-stat-val" id="pr-vel">—</div>
-          <div class="pace-stat-lbl">km/h</div>
-        </div>
-        <div class="pace-stat">
-          <div class="pace-stat-val" id="pr-temps">—</div>
-          <div class="pace-stat-lbl">Temps total</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="ritme-ajustat-block" style="display:none">
-      <div class="pace-hero" style="background:linear-gradient(135deg,#1f2a1a 0%,#1a2a1f 100%);border-color:var(--accent3)">
-        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent3);margin-bottom:0.4rem">Ritme ajustat (amb ascens)</div>
-        <div class="pace-result-row">
-          <div class="pace-big" id="pr-ritme-aj" style="color:var(--accent3)">—</div>
-          <div class="pace-unit">min/km</div>
-        </div>
-        <div class="pace-grid">
-          <div class="pace-stat green">
-            <div class="pace-stat-val" id="pr-temps-eq">—</div>
-            <div class="pace-stat-lbl">Temps equivalent pla</div>
-          </div>
-          <div class="pace-stat orange">
-            <div class="pace-stat-val" id="pr-temps-extra">—</div>
-            <div class="pace-stat-lbl">Temps descomptat</div>
-          </div>
-        </div>
-        <div style="font-size:0.68rem;color:var(--muted);font-weight:500;margin-top:0.8rem;line-height:1.6">
-          Fórmula: temps − (ascens × 1,74 s/m)
-        </div>
-      </div>
+<!-- MODAL confirmació esborrat -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">⚠️ Esborrar tot?</div>
+    <div class="modal-body">Aquesta acció eliminarà <strong>totes les dades</strong> guardades (tot l'historial de compliment). No es pot desfer.<br/><br/>Assegura't d'haver exportat les dades primer si les vols conservar.</div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="deleteCancel">Cancel·lar</button>
+      <button class="modal-btn confirm" id="deleteConfirm">Sí, esborrar</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════ PÀGINA 5: DADES ══════════════════ -->
-<div class="page" id="page-dades">
-  <div class="page-title">Gestió de dades</div>
-  <div class="page-sub">Exporta i importa totes les teves sessions</div>
-
-  <div class="dades-card">
-    <div class="dades-card-title">📤 Exportar dades</div>
-    <div class="dades-info">Descarrega totes les sessions guardades en format JSON. Guarda el fitxer com a còpia de seguretat o per importar-lo en un altre dispositiu.</div>
-    <button class="btn green small" onclick="exportarDades()">⬇ Descarregar JSON</button>
-    <button class="btn secondary small" onclick="exportarCSV()">⬇ Descarregar CSV</button>
+<!-- ═══ AVUI ═══ -->
+<div class="page active" id="page-avui">
+<div class="container">
+  <div class="header">
+    <div class="header-eyebrow">Programa de llengües</div>
+    <h1>Poliglota<br/>Diari</h1>
   </div>
-
-  <div class="dades-card">
-    <div class="dades-card-title">📥 Importar dades</div>
-    <div class="dades-info">Selecciona un fitxer JSON exportat prèviament. Les sessions noves s'afegiran sense esborrar les existents.</div>
-    <input type="file" id="import-file" accept=".json" onchange="importarDades(event)"/>
-    <button class="btn small" onclick="document.getElementById('import-file').click()">⬆ Seleccionar fitxer JSON</button>
-    <div id="import-status" style="font-size:0.75rem;color:var(--accent3);font-weight:600;margin-top:0.5rem;display:none"></div>
+  <div style="text-align:center">
+    <div class="date-chip"><span>Dia del mes</span><span class="dn" id="dayNum">—</span><span id="dateStr">—</span></div><br/>
+    <span class="mode-badge" id="modeBadge">—</span>
   </div>
-
-  <div class="dades-card">
-    <div class="dades-card-title">📊 Resum de dades</div>
-    <div id="dades-resum" style="font-size:0.82rem;color:var(--text);font-weight:500;line-height:2"></div>
+  <div class="divider"><span>Tasques d'avui</span></div>
+  <div class="tasks" id="taskList"></div>
+  <div class="progress-section">
+    <div class="progress-label"><span>Progrés diari</span><span id="progressText">0 / 4</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
-
-  <div class="dades-card" style="border-color:rgba(248,113,113,0.3)">
-    <div class="dades-card-title" style="color:var(--warn)">🗑 Esborrar tot</div>
-    <div class="dades-info">Elimina totes les sessions guardades. Aquesta acció no es pot desfer.</div>
-    <button class="btn red small" onclick="esborrarTot()">✕ Esborrar totes les sessions</button>
-  </div>
-</div>
-
-<!-- ══════════════════ PÀGINA 6: SABATES ══════════════════ -->
-<div class="page" id="page-sabates">
-  <div class="page-title">Temps de contacte</div>
-  <div class="page-sub">Registra el % de temps de contacte amb el terra per sabata</div>
-
-  <!-- Afegir sabata -->
-  <div class="form-section">
-    <div class="form-section-title">Afegir / gestionar sabates</div>
-    <div style="display:flex;gap:0.6rem;align-items:flex-end">
-      <div class="field" style="flex:1">
-        <label>Nom de la sabata</label>
-        <input id="sab-nom" type="text" placeholder="p.ex. Kayano 30" style="text-transform:uppercase"/>
-      </div>
-      <button class="btn" style="width:auto;padding:0.6rem 1rem;margin-top:0;flex-shrink:0" onclick="afegirSabata()">+</button>
-    </div>
-    <div id="sab-llista" style="margin-top:0.8rem"></div>
-  </div>
-
-  <!-- Afegir mesura -->
-  <div class="form-section" id="sab-mesura-section" style="display:none">
-    <div class="form-section-title">Nova mesura</div>
-    <div class="form-grid">
-      <div class="field">
-        <label>Sabata <span class="req">*</span></label>
-        <select id="sab-sel"></select>
-      </div>
-      <div class="field">
-        <label>Peu</label>
-        <select id="sab-peu">
-          <option value="dreta">Dreta</option>
-          <option value="esquerra">Esquerra</option>
-          <option value="mitja">Mitjana</option>
+  <div class="divider" style="margin-top:24px"><span>Sessions extra</span></div>
+  <div id="extraList"></div>
+  <button class="action-btn" id="addExtraBtn" style="margin-top:4px">
+    <span class="btn-icon">➕</span>
+    <span class="btn-text">Afegir sessió extra</span>
+    <span class="btn-arrow">›</span>
+  </button>
+  <div id="extraForm" style="display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:8px">
+    <div style="font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Nova sessió extra</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Llengua</div>
+        <select id="extraLang" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 10px;-webkit-appearance:none">
+          <option value="Anglès">🇬🇧 Anglès</option>
+          <option value="Francès">🇫🇷 Francès</option>
+          <option value="Italià">🇮🇹 Italià</option>
+          <option value="Alemany">🇩🇪 Alemany</option>
         </select>
       </div>
-      <div class="field">
-        <label>% Contacte <span class="req">*</span></label>
-        <input id="sab-pct" type="number" inputmode="decimal" step="0.1" min="0" max="100" placeholder="50,7"/>
-        <div class="unit">%</div>
-      </div>
-      <div class="field">
-        <label>Ritme (opcional)</label>
-        <input id="sab-ritme" type="text" inputmode="numeric" placeholder="5:30" maxlength="5" oninput="autoColon(this)"/>
-        <div class="unit">MIN/KM</div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Tipus</div>
+        <select id="extraType" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 10px;-webkit-appearance:none">
+          <option value="Escoltar">🎧 Escoltar</option>
+          <option value="Llegir">📖 Llegir</option>
+          <option value="Parlar">🗣️ Parlar</option>
+          <option value="Escriure">✍️ Escriure</option>
+          <option value="Vocabulari">📝 Vocabulari</option>
+          <option value="Gramàtica">📐 Gramàtica</option>
+        </select>
       </div>
     </div>
-    <div class="field" style="margin-top:0.5rem">
-      <label>Notes (opcional)</label>
-      <input id="sab-notes" type="text" placeholder="p.ex. entrenament llarg, cansament..."/>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Nota (opcional)</div>
+      <input id="extraNote" type="text" placeholder="p.ex. Podcast, pàgina 34..." style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 10px" maxlength="60"/>
     </div>
-    <button class="btn" style="margin-top:0.8rem" onclick="afegirMesura()">GUARDAR MESURA</button>
+    <div style="display:flex;gap:10px">
+      <button id="extraCancel" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer">Cancel·lar</button>
+      <button id="extraSave" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(78,203,175,.4);background:rgba(78,203,175,.12);color:var(--accent3);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;font-weight:700">Guardar</button>
+    </div>
   </div>
-
-  <!-- Resultats per sabata -->
-  <div id="sab-resultats"></div>
+  <div class="footer-note" id="footerNote"></div>
+</div>
 </div>
 
-<style>
-  /* Sabates extra styles */
-  .sab-chip {
-    display:inline-flex;align-items:center;gap:0.5rem;
-    background:var(--surface2);border:1px solid var(--border);
-    border-radius:6px;padding:0.4rem 0.7rem;margin:0.3rem 0.3rem 0 0;
-  }
-  .sab-chip-name { font-size:0.78rem;font-weight:700;color:var(--text); }
-  .sab-chip-del { background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:0 }
-  .sab-chip-del:hover { color:var(--warn); }
+<!-- ═══ HISTÒRIC ═══ -->
+<div class="page" id="page-historic">
+<div class="container">
+  <div class="page-title">Històric</div>
+  <div class="month-nav">
+    <button class="month-btn" id="prevMonth">‹</button>
+    <div class="month-title" id="monthTitle">—</div>
+    <button class="month-btn" id="nextMonth">›</button>
+  </div>
+  <div class="cal-legend">
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(78,203,175,.5)"></div>Complet (4/4)</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(245,200,66,.4)"></div>Parcial</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(232,85,62,.3)"></div>Cap</div>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="day-detail" id="dayDetail">
+    <div class="dd-header"><div class="dd-title" id="detailTitle">—</div><button class="dd-close" id="detailClose">✕</button></div>
+    <div id="detailTasks"></div>
+  </div>
+  <div class="divider"><span>Resum del mes</span></div>
+  <div class="stats-grid" id="histStats"></div>
+</div>
+</div>
 
-  .sab-card {
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;
-  }
-  .sab-card-header {
-    display:flex;justify-content:space-between;align-items:center;
-    margin-bottom:0.8rem;
-  }
-  .sab-nom-title {
-    font-family:var(--font-h);font-size:1.1rem;font-weight:800;color:var(--text);
-  }
-  .sab-avg-badge {
-    font-family:var(--font-h);font-size:1.6rem;font-weight:800;
-    line-height:1;
-  }
-  .sab-avg-lbl { font-size:0.6rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase; }
+<!-- ═══ ESTADÍSTIQUES ═══ -->
+<div class="page" id="page-stats">
+<div class="container">
+  <div class="page-title">Estadístiques globals</div>
+  <div class="streak-card"><div class="streak-flame">🔥</div><div><div class="streak-count" id="streakCount">0</div><div class="streak-text">dies seguits complets</div></div></div>
+  <div class="stats-grid" id="globalStats"></div>
+  <div class="divider"><span>Últimes 7 sessions</span></div>
+  <div class="week-chart"><div class="week-bars" id="weekBars"></div><div style="display:flex;gap:6px" id="weekLabels"></div></div>
+  <div class="divider"><span>Compliment per llengua</span></div>
+  <div class="lang-bars" id="langBars"></div>
+  <div class="divider"><span>Compliment per acció</span></div>
+  <div class="action-grid" id="actionGrid"></div>
+</div>
+</div>
 
-  .sab-table { width:100%;border-collapse:collapse;margin-top:0.5rem; }
-  .sab-table th {
-    font-size:0.58rem;font-weight:700;letter-spacing:0.12em;
-    text-transform:uppercase;color:var(--muted);
-    padding:0.35rem 0.5rem;text-align:left;border-bottom:1px solid var(--border);
-  }
-  .sab-table td {
-    font-size:0.78rem;font-weight:600;color:var(--text);
-    padding:0.45rem 0.5rem;border-bottom:1px solid rgba(45,58,80,0.4);
-  }
-  .sab-table tr:last-child td { border-bottom:none; }
-  .sab-table .pct-val { font-family:var(--font-h);font-size:1rem;font-weight:800; }
-  .sab-del-row { background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0 }
-  .sab-del-row:hover { color:var(--warn); }
+<!-- ═══ AJUSTOS ═══ -->
+<div class="page" id="page-ajustos">
+<div class="container">
+  <div class="page-title">Ajustos</div>
 
-  .pct-bar-wrap { background:var(--bg2);border-radius:4px;height:6px;margin-top:0.5rem;overflow:hidden; }
-  .pct-bar { height:100%;border-radius:4px;transition:width 0.4s ease; }
-</style>
+  <!-- Notificacions -->
+  <div class="settings-section">
+    <div class="settings-title">🔔 Notificacions</div>
+
+    <div class="setting-row">
+      <div class="setting-icon">🔔</div>
+      <div class="setting-info">
+        <div class="setting-name">Recordatori diari</div>
+        <div class="setting-desc">Notificació a l'hora que triïs</div>
+        <div id="notifStatusBadge"></div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="notifToggle"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+
+    <div class="time-row" id="timeRow" style="display:none">
+      <div class="setting-icon">🕐</div>
+      <div class="setting-info">
+        <div class="setting-name">Hora del recordatori</div>
+        <div class="setting-desc">La notificació s'enviarà cada dia</div>
+      </div>
+      <input type="time" class="time-input" id="notifTime" value="09:00"/>
+    </div>
+
+    <button class="action-btn" id="testNotifBtn" style="display:none">
+      <span class="btn-icon">🧪</span>
+      <span class="btn-text">Provar notificació ara</span>
+      <span class="btn-arrow">›</span>
+    </button>
+  </div>
+
+  <!-- Exportar / Importar -->
+  <div class="settings-section">
+    <div class="settings-title">💾 Dades</div>
+
+    <button class="action-btn" id="exportJsonBtn">
+      <span class="btn-icon">📤</span>
+      <div class="btn-text">
+        <div>Exportar dades (JSON)</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Tot l'historial en un fitxer</div>
+      </div>
+      <span class="btn-arrow">›</span>
+    </button>
+
+    <button class="action-btn" id="exportCsvBtn">
+      <span class="btn-icon">📊</span>
+      <div class="btn-text">
+        <div>Exportar dades (CSV)</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Compatible amb Excel / Sheets</div>
+      </div>
+      <span class="btn-arrow">›</span>
+    </button>
+
+    <button class="action-btn" id="importBtn">
+      <span class="btn-icon">📥</span>
+      <div class="btn-text">
+        <div>Importar dades (JSON)</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">Recuperar un backup anterior</div>
+      </div>
+      <span class="btn-arrow">›</span>
+    </button>
+    <input type="file" id="importFile" accept=".json" style="display:none"/>
+
+    <div class="data-info" id="dataInfo">—</div>
+  </div>
+
+  <!-- Zona de perill -->
+  <div class="settings-section">
+    <div class="settings-title">⚠️ Zona de perill</div>
+    <button class="action-btn danger" id="deleteAllBtn">
+      <span class="btn-icon">🗑️</span>
+      <div class="btn-text">
+        <div>Esborrar totes les dades</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">No es pot desfer</div>
+      </div>
+      <span class="btn-arrow">›</span>
+    </button>
+  </div>
+
+  <!-- Versió -->
+  <div class="footer-note">Poliglota Diari v2.0 · Dades guardades al dispositiu</div>
+</div>
+</div>
 
 <script>
-// ── UTILS ──
-const $ = id => document.getElementById(id);
-const fv = id => parseFloat($(id).value) || 0;
-const iv = id => parseInt($(id).value) || 0;
+// ══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════════════
+const ROTATIONS=[
+  // Dia 1: Escoltar Anglès, Escoltar Francès, Llegir Italià, Parlar Alemany
+  [{action:'Escoltar',ak:'escoltar1',lang:'Anglès',flag:'🇬🇧'},{action:'Escoltar',ak:'escoltar2',lang:'Francès',flag:'🇫🇷'},{action:'Llegir',ak:'llegir',lang:'Italià',flag:'🇮🇹'},{action:'Parlar',ak:'parlar',lang:'Alemany',flag:'🇩🇪'}],
+  // Dia 2: Escoltar Italià, Escoltar Alemany, Llegir Francès, Parlar Anglès
+  [{action:'Escoltar',ak:'escoltar1',lang:'Italià',flag:'🇮🇹'},{action:'Escoltar',ak:'escoltar2',lang:'Alemany',flag:'🇩🇪'},{action:'Llegir',ak:'llegir',lang:'Francès',flag:'🇫🇷'},{action:'Parlar',ak:'parlar',lang:'Anglès',flag:'🇬🇧'}],
+  // Dia 3: Escoltar Francès, Escoltar Anglès, Llegir Alemany, Parlar Italià
+  [{action:'Escoltar',ak:'escoltar1',lang:'Francès',flag:'🇫🇷'},{action:'Escoltar',ak:'escoltar2',lang:'Anglès',flag:'🇬🇧'},{action:'Llegir',ak:'llegir',lang:'Alemany',flag:'🇩🇪'},{action:'Parlar',ak:'parlar',lang:'Italià',flag:'🇮🇹'}],
+  // Dia 4: Escoltar Alemany, Escoltar Italià, Llegir Anglès, Parlar Francès
+  [{action:'Escoltar',ak:'escoltar1',lang:'Alemany',flag:'🇩🇪'},{action:'Escoltar',ak:'escoltar2',lang:'Italià',flag:'🇮🇹'},{action:'Llegir',ak:'llegir',lang:'Anglès',flag:'🇬🇧'},{action:'Parlar',ak:'parlar',lang:'Francès',flag:'🇫🇷'}],
+];
+const ICONS={escoltar1:'🎧',escoltar2:'👂',llegir:'📖',parlar:'🗣️'};
+const AK_COLOR={escoltar1:'var(--accent1)',escoltar2:'var(--accent4)',llegir:'var(--accent3)',parlar:'var(--accent2)'};
+const LANG_COLOR={Anglès:'#60a5fa',Francès:'#f472b6',Italià:'#fb923c',Alemany:'#a78bfa'};
+const MONTHS=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+const DAYS_SHORT=['Dl','Dt','Dc','Dj','Dv','Ds','Dg'];
+const WEEK_LABELS=['Dg','Dl','Dt','Dc','Dj','Dv','Ds'];
+const PHRASES=['Cada dia una nova llengua, cada llengua un nou món.','La consistència és el secret del poliglota.','Avui practiques, demà parles amb fluïdesa.','Les llengües obren portes que res més pot obrir.'];
 
-// ── CAMPS COMPARTITS I CÀLCUL AUTOMÀTIC ──
-// Els 3 camps: distància (p-km, r-dist), temps (p-h/p-m/p-s), ritme (ritme, r-ritme)
-// Qualsevol 2 d'ells calcula el 3r automàticament i sincronitza totes les pàgines.
-
-// Grups d'IDs per a cada variable lògica
-const IDS = {
-  dist:  ['p-km', 'r-dist'],
-  ritme: ['ritme', 'r-ritme'],
-  // temps: llegim sempre de p-h/p-m/p-s (únics)
-};
-
-// Llegir valors actuals
-function getDist()  { return parseFloat($('p-km')?.value || $('r-dist')?.value) || 0; }
-function getTempsSecs() {
-  const h = parseInt($('p-h')?.value) || 0;
-  const m = parseInt($('p-m')?.value) || 0;
-  const s = parseInt($('p-s')?.value) || 0;
-  return h*3600 + m*60 + s;
-}
-function getRitmeMin() { return parsePace($('ritme')?.value || $('r-ritme')?.value || ''); }
-
-// Escriure temps als camps h:m:s
-function setTemps(totalSecs) {
-  if (totalSecs <= 0) return;
-  const h = Math.floor(totalSecs / 3600);
-  const m = Math.floor((totalSecs % 3600) / 60);
-  const s = Math.round(totalSecs % 60);
-  ['p-h'].forEach(id => { if ($(id)) $(id).value = h || ''; });
-  ['p-m'].forEach(id => { if ($(id)) $(id).value = m || ''; });
-  ['p-s'].forEach(id => { if ($(id)) $(id).value = s || ''; });
+function getRot(d,m,y){
+  if(d<=28)return ROTATIONS[(d-1)%4];
+  const seed=((y*31+m)*37+d);
+  return ROTATIONS[((seed*7919+1327)>>>0)%4];
 }
 
-// Escriure distància a tots els camps dist
-function setDist(km) {
-  if (km <= 0) return;
-  IDS.dist.forEach(id => { if ($(id)) $(id).value = Math.round(km*100)/100; });
-}
+// ══════════════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════════════
+function dk(y,m,d){return`poly_${y}_${String(m).padStart(2,'0')}_${String(d).padStart(2,'0')}`;}
+function loadSet(y,m,d){try{const s=localStorage.getItem(dk(y,m,d));return s?new Set(JSON.parse(s)):new Set();}catch{return new Set();}}
+function saveSet(y,m,d,set){try{localStorage.setItem(dk(y,m,d),JSON.stringify([...set]));}catch{}}
+function allPolyKeys(){const k=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.startsWith('poly_'))k.push(key);}return k;}
 
-// Escriure ritme a tots els camps ritme
-function setRitme(minPerKm) {
-  if (minPerKm <= 0) return;
-  const str = formatPace(minPerKm);
-  IDS.ritme.forEach(id => { if ($(id)) $(id).value = str; });
-}
+// ══════════════════════════════════════════════════════════════
+// TODAY
+// ══════════════════════════════════════════════════════════════
+const now=new Date();
+const RY=now.getFullYear(),RM=now.getMonth()+1,RD=now.getDate();
+let todaySet=loadSet(RY,RM,RD);
 
-// Motor principal: donat quin camp ha canviat, calcula el 3r
-let _autoCalcLock = false;
-function autoCalc(changed) {
-  if (_autoCalcLock) return;
-  _autoCalcLock = true;
-
-  const dist  = getDist();
-  const secs  = getTempsSecs();
-  const ritme = getRitmeMin();
-
-  // Mostra hint si es calcula alguna cosa
-  const showHint = (id) => {
-    const el = $(id);
-    if (el) { el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2500); }
-  };
-
-  if (changed === 'dist' && dist > 0) {
-    if (secs > 0 && ritme <= 0) {
-      // dist + temps → ritme
-      const r = (secs / 60) / dist;
-      setRitme(r);
-      showHint('autocalc-hint');
-    } else if (ritme > 0 && secs <= 0) {
-      // dist + ritme → temps
-      setTemps(dist * ritme * 60);
-      showHint('autocalc-hint');
-    }
-    // Sincronitza als altres camps dist
-    IDS.dist.forEach(id => { if ($(id) && parseFloat($(id).value) !== dist) $(id).value = dist; });
-  }
-
-  if (changed === 'temps' && secs > 0) {
-    if (dist > 0 && ritme <= 0) {
-      // temps + dist → ritme
-      const r = (secs / 60) / dist;
-      setRitme(r);
-      showHint('autocalc-hint');
-    } else if (ritme > 0 && dist <= 0) {
-      // temps + ritme → dist
-      const d = (secs / 60) / ritme;
-      setDist(d);
-      showHint('autocalc-hint');
-    }
-  }
-
-  if (changed === 'ritme' && ritme > 0) {
-    if (dist > 0 && secs <= 0) {
-      // ritme + dist → temps
-      setTemps(dist * ritme * 60);
-      showHint('autocalc-hint');
-    } else if (secs > 0 && dist <= 0) {
-      // ritme + temps → dist
-      const d = (secs / 60) / ritme;
-      setDist(d);
-      showHint('autocalc-hint');
-    }
-    // Sincronitza als altres camps ritme
-    const str = formatPace(ritme);
-    IDS.ritme.forEach(id => { if ($(id) && $(id).value !== str) $(id).value = str; });
-  }
-
-  // Guarda a localStorage per sincronitzar entre pàgines
-  if (dist > 0)  localStorage.setItem('shared_dist', dist);
-  if (secs > 0)  { localStorage.setItem('shared_h', Math.floor(secs/3600)); localStorage.setItem('shared_m', Math.floor((secs%3600)/60)); localStorage.setItem('shared_s', secs%60); }
-  if (ritme > 0) localStorage.setItem('shared_ritme', formatPace(ritme));
-
-  _autoCalcLock = false;
-}
-
-// Sincronitza camps en carregar/canviar pàgina
-function syncSharedFields() {
-  const dist  = localStorage.getItem('shared_dist');
-  const h     = localStorage.getItem('shared_h');
-  const m2    = localStorage.getItem('shared_m');
-  const s2    = localStorage.getItem('shared_s');
-  const ritme = localStorage.getItem('shared_ritme');
-  const temp  = localStorage.getItem('shared_temp');
-  const hum   = localStorage.getItem('shared_hum');
-
-  if (dist)  IDS.dist.forEach(id  => { if ($(id) && !$(id).value) $(id).value = dist; });
-  if (h)     { if ($('p-h') && !$('p-h').value) $('p-h').value = h; }
-  if (m2)    { if ($('p-m') && !$('p-m').value) $('p-m').value = m2; }
-  if (s2)    { if ($('p-s') && !$('p-s').value) $('p-s').value = s2; }
-  if (ritme) IDS.ritme.forEach(id => { if ($(id) && !$(id).value) $(id).value = ritme; });
-  if (temp)  ['temp','r-temp'].forEach(id => { if ($(id) && !$(id).value) $(id).value = temp; });
-  if (hum)   ['humetat','r-hum'].forEach(id => { if ($(id) && !$(id).value) $(id).value = hum; });
-}
-
-function saveShared(id, val) {
-  const map = {'temp':'shared_temp','r-temp':'shared_temp','humetat':'shared_hum','r-hum':'shared_hum'};
-  const key = map[id];
-  if (key && val !== '') localStorage.setItem(key, val);
-}
-
-function initSharedListeners() {
-  // Temperatura i humetat (no formen part del trinomi dist/temps/ritme)
-  ['temp','r-temp','humetat','r-hum'].forEach(id => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener('input', () => saveShared(id, el.value));
+function renderAvui(){
+  document.getElementById('dayNum').textContent=RD;
+  document.getElementById('dateStr').textContent=`${RD}/${RM}/${RY}`;
+  const isRnd=RD>=29;
+  const b=document.getElementById('modeBadge');
+  b.textContent=isRnd?'🎲 Aleatori':'📅 Seqüencial';
+  b.className='mode-badge'+(isRnd?'':' seq');
+  document.getElementById('footerNote').textContent=PHRASES[(RD-1)%PHRASES.length];
+  const tasks=getRot(RD,RM,RY);
+  const list=document.getElementById('taskList');list.innerHTML='';
+  tasks.forEach((t,i)=>{
+    const done=todaySet.has(i);
+    const card=document.createElement('div');
+    card.className='task-card'+(done?' done':'');card.dataset.ak=t.ak;
+    card.innerHTML=`<div class="task-icon">${ICONS[t.ak]}</div><div class="task-info"><div class="task-action">${t.action}</div><div class="task-lang">${t.lang}</div></div><div class="task-flag">${t.flag}</div><button class="check-btn">${done?'✓':''}</button>`;
+    const toggle=()=>{
+      if(todaySet.has(i))todaySet.delete(i);else todaySet.add(i);
+      saveSet(RY,RM,RD,todaySet);
+      const d=todaySet.has(i);
+      card.classList.toggle('done',d);card.querySelector('.check-btn').textContent=d?'✓':'';
+      card.classList.remove('pop');void card.offsetWidth;card.classList.add('pop');
+      card.addEventListener('animationend',()=>card.classList.remove('pop'),{once:true});
+      updateProgress();
+    };
+    card.querySelector('.check-btn').addEventListener('click',e=>{e.stopPropagation();toggle();});
+    card.addEventListener('click',toggle);
+    list.appendChild(card);
   });
+  updateProgress();
+  renderExtras();
+}
+function updateProgress(){
+  const c=todaySet.size;
+  document.getElementById('progressText').textContent=`${c} / 4`;
+  document.getElementById('progressFill').style.width=`${c/4*100}%`;
 }
 
-function parsePace(str) {
-  if (!str) return 0;
-  const parts = str.split(':');
-  if (parts.length === 2) return parseFloat(parts[0]) + parseFloat(parts[1]) / 60;
-  return parseFloat(str);
+// ══════════════════════════════════════════════════════════════
+// HISTORIC
+// ══════════════════════════════════════════════════════════════
+let histY=RY,histM=RM;
+function renderHistoric(){
+  document.getElementById('monthTitle').textContent=`${MONTHS[histM-1]} ${histY}`;
+  renderCal();renderHistStats();
+  document.getElementById('dayDetail').classList.remove('vis');
 }
-
-function formatPace(minkm) {
-  const m = Math.floor(minkm);
-  const s = Math.round((minkm - m) * 60);
-  return `${m}:${String(s).padStart(2,'0')}`;
-}
-
-function formatTime(min) {
-  const h = Math.floor(min / 60);
-  const m = Math.round(min % 60);
-  if (h > 0) return `${h}h ${String(m).padStart(2,'0')}m`;
-  return `${m} min`;
-}
-
-function formatDate(ts) {
-  return new Date(ts).toLocaleDateString('ca-ES', {day:'2-digit',month:'short',year:'numeric'});
-}
-
-// ── STORAGE ──
-function getSessions() {
-  try { return JSON.parse(localStorage.getItem('sudorlab_sessions') || '[]'); } catch { return []; }
-}
-function saveSessions(arr) {
-  localStorage.setItem('sudorlab_sessions', JSON.stringify(arr));
-}
-
-// ── AUTO COLON per camps de ritme ──
-function autoColon(el) {
-  let v = el.value.replace(/[^0-9]/g, '');
-  if (v.length >= 2) v = v.slice(0,2) + ':' + v.slice(2,4);
-  el.value = v;
-  // Sync als camps compartits
-  saveShared(el.id, el.value);
-}
-
-// ── CÀLCUL TASSA ──
-function calcularTassa(pesBefore, pesAfter, liquidML, orinaML, duradaMin) {
-  const perdua = (pesBefore - pesAfter) * 1000 + liquidML - orinaML;
-  const tassa = (perdua / duradaMin) * 60;
-  return { perdua, tassa };
-}
-
-// Factor ambient: temperatura i humetat augmenten la sudoració
-function factorAmbient(temp, humetat) {
-  let f = 1.0;
-  if (temp > 20) f += (temp - 20) * 0.025;
-  if (humetat > 60) f += (humetat - 60) * 0.003;
-  return Math.max(0.7, Math.min(f, 2.0));
-}
-
-// ── CALCULAR ──
-function calcular() {
-  const pesBefore = fv('pes_abans');
-  const pesAfter  = fv('pes_despres');
-  const liquid    = fv('liquid');
-  const orina     = fv('orina');
-  const temp      = fv('temp');
-
-  if (!pesBefore || !pesAfter) {
-    alert('Cal introduir: Pes abans i Pes després.');
-    return;
+function renderCal(){
+  const grid=document.getElementById('calGrid');grid.innerHTML='';
+  DAYS_SHORT.forEach(d=>{const e=document.createElement('div');e.className='cal-dow';e.textContent=d;grid.appendChild(e);});
+  const firstDow=new Date(histY,histM-1,1).getDay();
+  const offset=(firstDow+6)%7;
+  const dim=new Date(histY,histM,0).getDate();
+  for(let i=0;i<offset;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(let d=1;d<=dim;d++){
+    const set=loadSet(histY,histM,d);
+    const el=document.createElement('div');el.className='cal-day';
+    if(d===RD&&histM===RM&&histY===RY)el.classList.add('today');
+    if(set.size>0)el.classList.add('has-data');
+    if(set.size===4)el.classList.add('full');
+    else if(set.size>0)el.classList.add('partial');
+    else{const past=new Date(histY,histM-1,d)<new Date(RY,RM-1,RD);if(past)el.classList.add('missed');}
+    const dots=document.createElement('div');dots.className='cal-dots';
+    for(let k=0;k<4;k++){const dot=document.createElement('div');dot.className='cal-dot';dot.style.background=set.has(k)?Object.values(AK_COLOR)[k]:'var(--border)';dots.appendChild(dot);}
+    el.innerHTML=`<span>${d}</span>`;el.appendChild(dots);
+    el.addEventListener('click',()=>showDetail(d,loadSet(histY,histM,d)));
+    grid.appendChild(el);
   }
-  if (pesAfter > pesBefore) {
-    alert('El pes després no pot ser major que el pes abans.');
-    return;
-  }
-
-  // Deriva durada des de qualsevol 2 dels 3 camps
-  const km    = getDist();
-  const secs  = getTempsSecs();
-  const ritme = getRitmeMin();
-  const teKm  = km > 0, teSecs = secs > 0, teRitme = ritme > 0;
-  const count = (teKm?1:0) + (teSecs?1:0) + (teRitme?1:0);
-
-  if (count < 1) {
-    alert('Cal introduir almenys el Temps total de la sessió.');
-    return;
-  }
-
-  let durada; // minuts
-  if (teSecs)             durada = secs / 60;
-  else if (teKm && teRitme) { durada = km * ritme; setTemps(durada*60); }
-  else { alert('Cal introduir el Temps total de la sessió.'); return; }
-
-  const { perdua, tassa } = calcularTassa(pesBefore, pesAfter, liquid, orina, durada);
-  const pct      = ((pesBefore - pesAfter) / pesBefore * 100);
-  const recomanat = Math.round(tassa * 0.8);
-  const deficit  = Math.round(perdua - liquid);
-
-  $('r-tassa').textContent    = Math.round(tassa);
-  $('r-perdua').textContent   = Math.round(perdua) + ' mL';
-  $('r-pct').textContent      = pct.toFixed(1) + '%';
-  $('r-recomanat').textContent = recomanat + ' mL';
-  $('r-deficit').textContent  = deficit > 0 ? '+' + deficit + ' mL' : deficit + ' mL';
-
-  let badge = '';
-  if (pct < 2) badge = `<div class="hydro-badge ok">✓ Hidratació acceptable (&lt;2%)</div>`;
-  else if (pct < 3) badge = `<div class="hydro-badge mid">⚠ Deshidratació lleu (${pct.toFixed(1)}%)</div>`;
-  else badge = `<div class="hydro-badge bad">✗ Deshidratació significativa (${pct.toFixed(1)}%)</div>`;
-  $('r-badge').innerHTML = badge;
-
-  $('resultat').classList.add('show');
-  $('resultat').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  window._currentSession = {
-    ts: Date.now(),
-    pesBefore, pesAfter, liquid, orina, durada,
-    ritme: $('ritme').value,
-    fc: iv('fc'), calories: iv('calories'),
-    temp, humetat: fv('humetat'),
-    tassa: Math.round(tassa),
-    perdua: Math.round(perdua),
-    pct: parseFloat(pct.toFixed(1))
-  };
 }
+function showDetail(d,set){
+  const tasks=getRot(d,histM,histY);
+  // Editable si és dins dels últims 7 dies (sense comptar avui, que s'edita des de la pestanya Avui)
+  const clickedDate=new Date(histY,histM-1,d);
+  const todayDate=new Date(RY,RM-1,RD);
+  const diffDays=Math.round((todayDate-clickedDate)/(1000*60*60*24));
+  const editable=diffDays>=1&&diffDays<=7;
 
+  const titleEl=document.getElementById('detailTitle');
+  titleEl.innerHTML=`${d} de ${MONTHS[histM-1]} ${histY}${editable?` <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3);letter-spacing:.1em;vertical-align:middle;margin-left:6px">✏️ EDITABLE</span>`:''}`;
 
-function guardar() {
-  if (!window._currentSession) return;
-  const sessions = getSessions();
-  sessions.unshift(window._currentSession);
-  saveSessions(sessions);
-  window._currentSession = null;
-  alert('Sessió guardada!');
-  resetar();
-}
+  const cont=document.getElementById('detailTasks');cont.innerHTML='';
+  // Treballem amb una còpia mutable del set
+  let editSet=new Set(set);
 
-function resetar() {
-  // Només neteja camps específics de la sessió (pes, líquids)
-  // Els camps compartits (ritme, temp, humetat, durada) es mantenen
-  ['pes_abans','pes_despres','liquid','orina'].forEach(id => $(id).value = '');
-  $('resultat').classList.remove('show');
-}
+  tasks.forEach((t,i)=>{
+    const row=document.createElement('div');row.className='det-row';
+    if(editable)row.style.cursor='pointer';
 
-// ── HISTORIAL ──
-function renderHistorial() {
-  const sessions = getSessions();
-  const mesures  = getMesures();
-  const el = $('historial-content');
+    const renderRow=()=>{
+      const done=editSet.has(i);
+      row.innerHTML=`
+        <div class="det-dot" style="background:${Object.values(AK_COLOR)[i]}"></div>
+        <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">${t.action}</span>
+        <span style="font-family:'Playfair Display',serif;font-size:14px;margin-left:5px">${t.lang} ${t.flag}</span>
+        <span class="det-done" style="display:flex;align-items:center;gap:8px">
+          ${done?'✅':'⬜'}
+          ${editable?`<span style="font-size:11px;color:${done?'var(--accent3)':'var(--muted)'};border:1px solid ${done?'rgba(78,203,175,.4)':'var(--border)'};border-radius:6px;padding:2px 7px;transition:all .2s">${done?'Fet':'Marcar'}</span>`:''}
+        </span>`;
+    };
+    renderRow();
 
-  if (!sessions.length && !mesures.length) {
-    el.innerHTML = `<div class="history-empty"><div class="icon">📊</div>Encara no hi ha registres.<br>Comença a registrar a <strong>Sudor</strong> o <strong>Sabates</strong>.</div>`;
-    return;
-  }
-
-  // Barreja sessions sudor + mesures sabates i ordena per data descendent
-  const items = [
-    ...sessions.map((s, i) => ({ tipus: 'sudor', data: s, idx: i })),
-    ...mesures.map(m => ({ tipus: 'sabata', data: m }))
-  ].sort((a, b) => b.data.ts - a.data.ts);
-
-  // Resum global
-  const avgTassa = sessions.length
-    ? Math.round(sessions.reduce((s,x) => s + x.tassa, 0) / sessions.length)
-    : null;
-
-  // Agrupa per sabata per mostrar la mitjana al header
-  const mitjanesSabata = {};
-  const sabates = getSabates();
-  sabates.forEach(sab => {
-    const ms = mesures.filter(m => m.sabata === sab);
-    if (ms.length) mitjanesSabata[sab] = ms.reduce((a,m) => a + m.pct, 0) / ms.length;
+    if(editable){
+      row.addEventListener('click',()=>{
+        if(editSet.has(i))editSet.delete(i);else editSet.add(i);
+        saveSet(histY,histM,d,editSet);
+        // Si és avui, actualitza també todaySet
+        if(diffDays===0){todaySet=editSet;renderAvui();}
+        renderRow();
+        // Actualitza els punts del calendari
+        renderCal();
+        renderHistStats();
+        showToast(`${editSet.has(i)?'✓ Marcat':'○ Desmarcat'}: ${t.action} ${t.lang}`,'success');
+      });
+    }
+    cont.appendChild(row);
   });
-
-  let headerHtml = '';
-  if (avgTassa !== null) {
-    headerHtml += `
-      <div class="avg-banner">
-        <div>
-          <div class="avg-banner-label">Tassa sudoració mitja</div>
-          <div style="font-size:0.65rem;color:var(--muted);font-weight:600">${sessions.length} sessions</div>
-        </div>
-        <div class="avg-banner-val">${avgTassa} <span style="font-family:var(--font-b);font-size:0.75rem;font-weight:600;color:var(--muted)">mL/h</span></div>
-      </div>`;
-  }
-  if (Object.keys(mitjanesSabata).length) {
-    headerHtml += `<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">`;
-    Object.entries(mitjanesSabata).forEach(([sab, avg]) => {
-      headerHtml += `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;flex:1;min-width:120px">
-          <div style="font-size:0.58rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">👟 ${sab}</div>
-          <div style="font-family:var(--font-h);font-size:1.2rem;font-weight:800;color:${pctColor(avg)}">${avg.toFixed(2)}%</div>
-          <div style="font-size:0.58rem;color:var(--muted);font-weight:600">Mitjana contacte</div>
-        </div>`;
+  // Sessions extra del dia
+  const extras=loadExtras(histY,histM,d);
+  if(extras.length){
+    const exTitle=document.createElement('div');
+    exTitle.style.cssText='font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:10px;margin-bottom:4px;padding-top:8px;border-top:1px solid var(--border)';
+    exTitle.textContent='Sessions extra';
+    cont.appendChild(exTitle);
+    extras.forEach(e=>{
+      const row=document.createElement('div');row.className='det-row';
+      row.innerHTML=`<div class="det-dot" style="background:var(--accent4)"></div><span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">${e.type}</span><span style="font-family:'Playfair Display',serif;font-size:14px;margin-left:5px">${LANG_FLAGS[e.lang]||''} ${e.lang}</span>${e.note?`<span style="font-size:10px;color:var(--muted);margin-left:auto">${e.note}</span>`:'<span class="det-done">⭐</span>'}`;
+      cont.appendChild(row);
     });
-    headerHtml += `</div>`;
   }
+  document.getElementById('dayDetail').classList.add('vis');
+}
+document.getElementById('detailClose').addEventListener('click',()=>document.getElementById('dayDetail').classList.remove('vis'));
+function renderHistStats(){
+  const dim=new Date(histY,histM,0).getDate();
+  const maxD=(histY<RY||(histY===RY&&histM<RM))?dim:(histY===RY&&histM===RM)?RD:0;
+  let tot=0,comp=0,part=0,tasks=0;
+  for(let d=1;d<=maxD;d++){const s=loadSet(histY,histM,d);tot++;if(s.size===4)comp++;else if(s.size>0)part++;tasks+=s.size;}
+  const pct=tot>0?Math.round(comp/tot*100):0;
+  const pc=pct>=80?'teal':pct>=50?'gold':'red';
+  document.getElementById('histStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num teal">${comp}</div><div class="stat-label">Dies complets</div></div>
+    <div class="stat-card"><div class="stat-num gold">${part}</div><div class="stat-label">Dies parcials</div></div>
+    <div class="stat-card"><div class="stat-num purple">${tasks}</div><div class="stat-label">Tasques fetes</div></div>
+    <div class="stat-card"><div class="stat-num ${pc}">${pct}%</div><div class="stat-label">% Compliment</div></div>`;
+}
+document.getElementById('prevMonth').addEventListener('click',()=>{histM--;if(histM<1){histM=12;histY--;}renderHistoric();});
+document.getElementById('nextMonth').addEventListener('click',()=>{histM++;if(histM>12){histM=1;histY++;}renderHistoric();});
 
-  // Filtre actiu
-  const filtreActiu = window._histFiltreActiu || 'tot';
-  headerHtml += `
-    <div style="display:flex;gap:0.4rem;margin-bottom:1rem;overflow-x:auto;padding-bottom:2px">
-      <button onclick="filtreHistorial('tot',this)"   class="hist-btn ${filtreActiu==='tot'    ?'hist-btn-on':''}" >Tot</button>
-      <button onclick="filtreHistorial('sudor',this)" class="hist-btn ${filtreActiu==='sudor'  ?'hist-btn-on':''}" >💧 Sudor</button>
-      <button onclick="filtreHistorial('sabata',this)"class="hist-btn ${filtreActiu==='sabata' ?'hist-btn-on':''}" >👟 Sabates</button>
-    </div>`;
+// ══════════════════════════════════════════════════════════════
+// SESSIONS EXTRA
+// ══════════════════════════════════════════════════════════════
+const EXTRA_ICONS={'Escoltar':'🎧','Llegir':'📖','Parlar':'🗣️','Escriure':'✍️','Vocabulari':'📝','Gramàtica':'📐'};
+const LANG_FLAGS={Anglès:'🇬🇧',Francès:'🇫🇷',Italià:'🇮🇹',Alemany:'🇩🇪'};
 
-  // Renderitza cada item
-  const itemsFiltrats = filtreActiu === 'tot' ? items : items.filter(it => it.tipus === filtreActiu);
+function extraKey(y,m,d){return`poly_extra_${y}_${String(m).padStart(2,'0')}_${String(d).padStart(2,'0')}`;}
+function loadExtras(y,m,d){try{const s=localStorage.getItem(extraKey(y,m,d));return s?JSON.parse(s):[];}catch{return[];}}
+function saveExtras(y,m,d,arr){try{localStorage.setItem(extraKey(y,m,d),JSON.stringify(arr));}catch{}}
 
-  const cardsHtml = itemsFiltrats.map(it => {
-    if (it.tipus === 'sudor') {
-      const s = it.data;
-      const i = it.idx;
-      const duradaText = s.durada ? `${Math.round(s.durada)} min` : '—';
-      return `
-        <div class="session-card" style="border-left:3px solid var(--accent)">
-          <button class="delete-btn" onclick="eliminarSessio(${i}, event)">✕</button>
-          <div class="session-card-header">
-            <div>
-              <div style="font-size:0.58rem;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase">💧 Sudoració</div>
-              <div class="session-date">${formatDate(s.ts)}</div>
-              <div style="font-size:0.65rem;color:var(--muted);font-weight:600;margin-top:0.15rem">${s.temp || '—'}°C · ${s.humetat || '—'}% HR · ${duradaText}</div>
-            </div>
-            <div style="text-align:right">
-              <div class="session-rate">${s.tassa}<span> mL/h</span></div>
-              <div style="font-size:0.65rem;color:${s.pct < 2 ? 'var(--accent3)' : s.pct < 3 ? 'var(--accent2)' : 'var(--warn)'};font-weight:700">${s.pct}% pes perdut</div>
-            </div>
-          </div>
-          <div class="session-chips">
-            <div class="chip">📉 ${s.perdua} mL perduts</div>
-            ${s.ritme ? `<div class="chip">🏃 ${s.ritme} min/km</div>` : ''}
-            ${s.fc ? `<div class="chip ${s.fc > 160 ? 'hi' : ''}">❤️ ${s.fc} ppm</div>` : ''}
-            ${s.calories ? `<div class="chip">🔥 ${s.calories} kcal</div>` : ''}
-          </div>
-        </div>`;
-    } else {
-      const m = it.data;
-      const color = pctColor(m.pct);
-      return `
-        <div class="session-card" style="border-left:3px solid ${color}">
-          <button class="delete-btn" onclick="eliminarMesura(${m.ts});renderHistorial()">✕</button>
-          <div class="session-card-header">
-            <div>
-              <div style="font-size:0.58rem;font-weight:700;color:${color};letter-spacing:0.12em;text-transform:uppercase">👟 ${m.sabata}</div>
-              <div class="session-date">${formatDate(m.ts)}</div>
-              <div style="font-size:0.65rem;color:var(--muted);font-weight:600;margin-top:0.15rem;text-transform:capitalize">${m.peu}${m.ritme ? ' · ' + m.ritme + ' min/km' : ''}</div>
-            </div>
-            <div style="text-align:right">
-              <div style="font-family:var(--font-h);font-size:2rem;font-weight:800;color:${color};line-height:1">${m.pct.toFixed(1)}<span style="font-family:var(--font-b);font-size:0.7rem;font-weight:600;color:var(--muted)">%</span></div>
-              <div style="font-size:0.6rem;color:var(--muted);font-weight:600">contacte terra</div>
-            </div>
-          </div>
-          ${m.notes ? `<div style="font-size:0.7rem;color:var(--muted);font-weight:500;margin-top:0.3rem;font-style:italic">${m.notes}</div>` : ''}
-        </div>`;
-    }
-  }).join('');
-
-  el.innerHTML = headerHtml + (itemsFiltrats.length ? cardsHtml : '<div class="history-empty" style="padding:2rem 0"><div class="icon">🔍</div>Sense registres per a aquest filtre.</div>');
+function renderExtras(){
+  const extras=loadExtras(RY,RM,RD);
+  const list=document.getElementById('extraList');
+  list.innerHTML='';
+  extras.forEach((e,i)=>{
+    const card=document.createElement('div');
+    card.style.cssText='background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;position:relative;overflow:hidden';
+    // Franja lateral porpra
+    const bar=document.createElement('div');
+    bar.style.cssText='position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent4);border-radius:3px 0 0 3px';
+    card.appendChild(bar);
+    card.innerHTML+=`
+      <div style="font-size:22px;flex-shrink:0;width:32px;text-align:center">${EXTRA_ICONS[e.type]||'⭐'}</div>
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${e.type} · Extra</div>
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700">${LANG_FLAGS[e.lang]||''} ${e.lang}</div>
+        ${e.note?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${e.note}</div>`:''}
+      </div>
+      <button data-idx="${i}" class="del-extra-btn" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:color .2s" title="Eliminar">✕</button>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.del-extra-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const idx=parseInt(btn.dataset.idx);
+      const arr=loadExtras(RY,RM,RD);
+      arr.splice(idx,1);
+      saveExtras(RY,RM,RD,arr);
+      renderExtras();
+      showToast('Sessió eliminada');
+    });
+  });
 }
 
-function filtreHistorial(tipus, btn) {
-  window._histFiltreActiu = tipus;
-  renderHistorial();
-}
-
-function eliminarSessio(i, e) {
-  e.stopPropagation();
-  if (!confirm('Eliminar aquesta sessió?')) return;
-  const sessions = getSessions();
-  sessions.splice(i, 1);
-  saveSessions(sessions);
-  renderHistorial();
-}
-
-// ── ESTIMACIÓ CARRERA ──
-function getAvgTassa() {
-  const sessions = getSessions();
-  if (!sessions.length) return null;
-  return sessions.reduce((s,x) => s + x.tassa, 0) / sessions.length;
-}
-
-function renderAvgInfo() {
-  const avg = getAvgTassa();
-  const el = $('avg-info');
-  if (!avg) {
-    el.innerHTML = `<div class="info-box" style="margin-bottom:1rem">⚠ <strong>Sense historial</strong> — afegeix sessions per obtenir estimacions personalitzades. S'usarà una tassa de referència de 800 mL/h.</div>`;
-  } else {
-    el.innerHTML = `<div class="avg-banner" style="margin-bottom:1rem"><div><div class="avg-banner-label">Tassa base (historial teu)</div><div style="font-size:0.65rem;color:var(--muted);font-weight:600">${getSessions().length} sessions</div></div><div class="avg-banner-val">${Math.round(avg)} <span style="font-family:var(--font-b);font-size:0.75rem;font-weight:600;color:var(--muted)">mL/h</span></div></div>`;
-  }
-}
-
-function estimarCarrera() {
-  const dist  = getDist();
-  const secs  = getTempsSecs();
-  const ritme = getRitmeMin();
-  const temp  = fv('r-temp') || 20;
-  const hum   = fv('r-hum') || 60;
-
-  const teKm    = dist > 0;
-  const teSecs  = secs > 0;
-  const teRitme = ritme > 0;
-  const count   = (teKm?1:0) + (teSecs?1:0) + (teRitme?1:0);
-
-  if (count < 2) {
-    alert('Introdueix almenys 2 d\'aquests 3 camps: Distància, Temps o Ritme.');
-    return;
-  }
-
-  let kmFinal, tempsMin, ritmeFinal;
-  if (teKm && teSecs)   { kmFinal = dist; tempsMin = secs/60; ritmeFinal = tempsMin/dist; setRitme(ritmeFinal); }
-  else if (teKm && teRitme) { kmFinal = dist; ritmeFinal = ritme; tempsMin = dist*ritme; setTemps(tempsMin*60); }
-  else                  { tempsMin = secs/60; ritmeFinal = ritme; kmFinal = tempsMin/ritme; setDist(kmFinal); }
-
-  const baseTassa     = getAvgTassa() || 800;
-  const fa            = factorAmbient(temp, hum);
-  const tassaAjustada = Math.round(baseTassa * fa);
-  const tempsH        = tempsMin / 60;
-  const totalFluid    = Math.round(tassaAjustada * tempsH);
-  const fluidPer15    = Math.round(tassaAjustada / 4);
-
-  let nomCarrera = kmFinal < 5 ? 'Cursa curta' : kmFinal < 15 ? 'Cursa 10K–15K' : kmFinal < 25 ? 'Mitja marató' : kmFinal < 45 ? 'Marató' : kmFinal < 80 ? 'Ultra curta' : 'Ultra trail';
-
-  $('cr-nom').textContent   = `${nomCarrera} · ${Math.round(kmFinal*100)/100} km`;
-  $('cr-temps').textContent = formatTime(tempsMin);
-  $('cr-tassa').textContent = tassaAjustada + ' mL/h';
-  $('cr-total').textContent = totalFluid + ' mL';
-  $('cr-hora').textContent  = tassaAjustada + ' mL/h';
-
-  let consell = `<strong>Pla d'hidratació:</strong><br>`;
-  consell += `· Beure aprox. <strong>${fluidPer15} mL cada 15 min</strong> (${tassaAjustada} mL/h).<br>`;
-  consell += `· Factor ambient: ×${fa.toFixed(2)} (${temp}°C, ${hum}% HR).<br>`;
-  if (fa > 1.3) consell += `· ⚠ Condicions càlides/humides: augmenta la freqüència.<br>`;
-  if (kmFinal > 30) consell += `· Per ultratrails considera sals minerals cada 45–60 min.<br>`;
-  consell += `· Comença la carrera ben hidratat (orina clara).`;
-
-  $('cr-consell').innerHTML = consell;
-  $('carrera-result').style.display = 'block';
-  $('carrera-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ── NAVEGACIÓ ──
-function goTo(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  $('page-' + page).classList.add('active');
-  if (btn) btn.classList.add('active');
-  // Sincronitza camps compartits en entrar a cada pàgina
-  syncSharedFields();
-  if (page === 'historial') renderHistorial();
-  if (page === 'carrera') renderAvgInfo();
-  if (page === 'dades') renderDadesResum();
-  if (page === 'sabates') renderSabates();
-}
-
-// ── INIT ──
-document.addEventListener('DOMContentLoaded', () => {
-  initSharedListeners();
-  syncSharedFields();
+document.getElementById('addExtraBtn').addEventListener('click',()=>{
+  document.getElementById('extraForm').style.display='block';
+  document.getElementById('addExtraBtn').style.display='none';
+  document.getElementById('extraNote').value='';
+});
+document.getElementById('extraCancel').addEventListener('click',()=>{
+  document.getElementById('extraForm').style.display='none';
+  document.getElementById('addExtraBtn').style.display='flex';
+});
+document.getElementById('extraSave').addEventListener('click',()=>{
+  const lang=document.getElementById('extraLang').value;
+  const type=document.getElementById('extraType').value;
+  const note=document.getElementById('extraNote').value.trim();
+  const arr=loadExtras(RY,RM,RD);
+  arr.push({lang,type,note,ts:Date.now()});
+  saveExtras(RY,RM,RD,arr);
+  document.getElementById('extraForm').style.display='none';
+  document.getElementById('addExtraBtn').style.display='flex';
+  renderExtras();
+  showToast(`✓ ${type} ${lang} afegit`,'success');
 });
 
-// ── SABATES ──
-function getSabates() {
-  try { return JSON.parse(localStorage.getItem('sudorlab_sabates') || '[]'); } catch { return []; }
-}
-function saveSabates(arr) { localStorage.setItem('sudorlab_sabates', JSON.stringify(arr)); }
-function getMesures() {
-  try { return JSON.parse(localStorage.getItem('sudorlab_mesures') || '[]'); } catch { return []; }
-}
-function saveMesures(arr) { localStorage.setItem('sudorlab_mesures', JSON.stringify(arr)); }
+// ══════════════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════════════
 
-function afegirSabata() {
-  const nom = $('sab-nom').value.trim().toUpperCase();
-  if (!nom) { alert('Introdueix el nom de la sabata.'); return; }
-  const sabates = getSabates();
-  if (sabates.includes(nom)) { alert('Aquesta sabata ja existeix.'); return; }
-  sabates.push(nom);
-  saveSabates(sabates);
-  $('sab-nom').value = '';
-  renderSabates();
+// Retorna si el dia actual ja ha de comptar (≥ 22:00)
+function todayCountsForStats(){
+  return now.getHours()>=22;
 }
 
-function eliminarSabata(nom) {
-  if (!confirm(`Eliminar "${nom}" i totes les seves mesures?`)) return;
-  const sabates = getSabates().filter(s => s !== nom);
-  saveSabates(sabates);
-  const mesures = getMesures().filter(m => m.sabata !== nom);
-  saveMesures(mesures);
-  renderSabates();
+// Retorna la data del primer registre existent
+function firstRegisteredDate(){
+  const keys=allPolyKeys().filter(k=>/^poly_\d{4}_\d{2}_\d{2}$/.test(k));
+  if(!keys.length)return null;
+  keys.sort();
+  const m=keys[0].match(/^poly_(\d{4})_(\d{2})_(\d{2})$/);
+  return new Date(+m[1],+m[2]-1,+m[3]);
 }
 
-function afegirMesura() {
-  const sabata = $('sab-sel').value;
-  const peu    = $('sab-peu').value;
-  const pct    = parseFloat($('sab-pct').value);
-  const ritme  = $('sab-ritme').value.trim();
-  const notes  = $('sab-notes').value.trim();
-  if (!sabata || isNaN(pct) || pct <= 0 || pct > 100) {
-    alert('Selecciona una sabata i introdueix un % vàlid (0-100).');
-    return;
+function renderStats(){
+  // Rang de dies a comptar: des del primer registre fins ahir (o avui si ≥22h)
+  const firstDate=firstRegisteredDate();
+  const includeToday=todayCountsForStats();
+  const lastDate=includeToday?new Date(RY,RM-1,RD):new Date(RY,RM-1,RD-1);
+
+  let totDays=0,compDays=0,missedDays=0,totTasks=0;
+  const langDone={Anglès:0,Francès:0,Italià:0,Alemany:0},langTot={Anglès:0,Francès:0,Italià:0,Alemany:0};
+  const akDone={escoltar1:0,escoltar2:0,llegir:0,parlar:0},akTot={escoltar1:0,escoltar2:0,llegir:0,parlar:0};
+
+  if(firstDate){
+    const cursor=new Date(firstDate);
+    while(cursor<=lastDate){
+      const y=cursor.getFullYear(),mo=cursor.getMonth()+1,d=cursor.getDate();
+      const set=loadSet(y,mo,d);
+      totDays++;
+      if(set.size===4)compDays++;
+      else if(set.size===0)missedDays++;
+      totTasks+=set.size;
+      // Per llengua i acció
+      getRot(d,mo,y).forEach((t,i)=>{
+        langTot[t.lang]=(langTot[t.lang]||0)+1;akTot[t.ak]=(akTot[t.ak]||0)+1;
+        if(set.has(i)){langDone[t.lang]=(langDone[t.lang]||0)+1;akDone[t.ak]=(akDone[t.ak]||0)+1;}
+      });
+      cursor.setDate(cursor.getDate()+1);
+    }
   }
-  const mesures = getMesures();
-  mesures.unshift({ ts: Date.now(), sabata, peu, pct, ritme, notes });
-  saveMesures(mesures);
-  $('sab-pct').value = '';
-  $('sab-ritme').value = '';
-  $('sab-notes').value = '';
-  renderSabates();
+
+  // Streak: dies seguits complets fins avui (o ahir si avui no compta)
+  let streak=0;
+  const chk=new Date(includeToday?new Date(RY,RM-1,RD):new Date(RY,RM-1,RD-1));
+  while(true){
+    const y=chk.getFullYear(),m=chk.getMonth()+1,d=chk.getDate();
+    if(loadSet(y,m,d).size===4){streak++;chk.setDate(chk.getDate()-1);}else break;
+  }
+  document.getElementById('streakCount').textContent=streak;
+
+  const gPct=totDays>0?Math.round(compDays/totDays*100):0;
+  const gc=gPct>=80?'teal':gPct>=50?'gold':'red';
+  const todayNote=!includeToday?` <span style="font-size:9px;color:var(--muted)">(avui pendent fins les 22h)</span>`:'';
+  document.getElementById('globalStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num gold">${totDays}</div><div class="stat-label">Dies comptats${todayNote}</div></div>
+    <div class="stat-card"><div class="stat-num teal">${compDays}</div><div class="stat-label">Dies complets</div></div>
+    <div class="stat-card"><div class="stat-num red">${missedDays}</div><div class="stat-label">Dies sense registre</div></div>
+    <div class="stat-card"><div class="stat-num ${gc}">${gPct}%</div><div class="stat-label">% Compliment real</div></div>`;
+  const wb=document.getElementById('weekBars'),wl=document.getElementById('weekLabels');wb.innerHTML='';wl.innerHTML='';
+  for(let i=6;i>=0;i--){
+    const dd=new Date(RY,RM-1,RD-i);
+    const y=dd.getFullYear(),m=dd.getMonth()+1,d=dd.getDate();
+    const set=loadSet(y,m,d);
+    const h=set.size===0?3:Math.round(set.size/4*56)+4;
+    const bw=document.createElement('div');bw.className='week-bar-wrap';
+    bw.innerHTML=`<div class="week-bar ${set.size>0?'has':'empty-bar'}" style="height:${h}px"></div>`;
+    wb.appendChild(bw);
+    const lbl=document.createElement('div');lbl.className='week-lbl';
+    lbl.textContent=WEEK_LABELS[dd.getDay()]+(d===RD&&m===RM?'·':'');wl.appendChild(lbl);
+  }
+  const lb=document.getElementById('langBars');lb.innerHTML='';
+  const flags={Anglès:'🇬🇧',Francès:'🇫🇷',Italià:'🇮🇹',Alemany:'🇩🇪'};
+  ['Anglès','Francès','Italià','Alemany'].forEach(lang=>{
+    const done=langDone[lang]||0,tot=langTot[lang]||0,pct=tot>0?Math.round(done/tot*100):0;
+    const row=document.createElement('div');row.className='lang-bar-row';
+    row.innerHTML=`<div class="lbr-header"><div class="lbr-name"><span>${flags[lang]}</span>${lang}<span style="color:var(--muted);font-size:10px">${done}/${tot}</span></div><div class="lbr-pct" style="color:${LANG_COLOR[lang]}">${pct}%</div></div><div class="lbr-track"><div class="lbr-fill" style="width:${pct}%;background:${LANG_COLOR[lang]}"></div></div>`;
+    lb.appendChild(row);
+  });
+  const ag=document.getElementById('actionGrid');ag.innerHTML='';
+  [{key:'escoltar1',name:'Escoltar (1r)',icon:'🎧'},{key:'escoltar2',name:'Escoltar (2n)',icon:'👂'},{key:'llegir',name:'Llegir',icon:'📖'},{key:'parlar',name:'Parlar',icon:'🗣️'}].forEach(a=>{
+    const done=akDone[a.key]||0,tot=akTot[a.key]||0,pct=tot>0?Math.round(done/tot*100):0;
+    const card=document.createElement('div');card.className='action-card';
+    card.innerHTML=`<div class="action-icon">${a.icon}</div><div class="action-pct" style="color:${AK_COLOR[a.key]}">${pct}%</div><div class="action-name">${a.name}</div><div style="font-size:10px;color:var(--muted);margin-top:3px">${done}/${tot}</div>`;
+    ag.appendChild(card);
+  });
 }
 
-function eliminarMesura(ts) {
-  const mesures = getMesures().filter(m => m.ts !== ts);
-  saveMesures(mesures);
-  renderSabates();
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
+  clearTimeout(toastTimer);
+  void t.offsetWidth;t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function pctColor(pct) {
-  if (pct < 51)  return 'var(--accent3)';   // verd
-  if (pct < 52)  return 'var(--accent2)';   // ambre
-  return 'var(--warn)';                      // roig
-}
+// ══════════════════════════════════════════════════════════════
+// NOTIFICACIONS
+// ══════════════════════════════════════════════════════════════
+let notifEnabled=false;
+let swReg=null;
 
-function renderSabates() {
-  const sabates = getSabates();
-  // Ordena totes les mesures per timestamp descendent (última primer)
-  const mesures = getMesures().slice().sort((a, b) => b.ts - a.ts);
+function updateNotifUI(){
+  const perm='Notification' in window?Notification.permission:'unsupported';
+  const badge=document.getElementById('notifStatusBadge');
+  const toggle=document.getElementById('notifToggle');
+  const timeRow=document.getElementById('timeRow');
+  const testBtn=document.getElementById('testNotifBtn');
 
-  // Llista de sabates (chips + delete)
-  const llista = $('sab-llista');
-  if (!sabates.length) {
-    llista.innerHTML = '<div style="font-size:0.75rem;color:var(--muted);font-weight:500">Afegeix la primera sabata ↑</div>';
+  if(perm==='unsupported'){
+    badge.innerHTML=`<span class="notif-status denied">⚠️ No suportat en aquest navegador</span>`;
+    toggle.disabled=true;return;
+  }
+  if(perm==='granted'){
+    badge.innerHTML=`<span class="notif-status granted">✓ Permís concedit</span>`;
+  } else if(perm==='denied'){
+    badge.innerHTML=`<span class="notif-status denied">✗ Permís denegat — activa-les manualment</span>`;
+    toggle.disabled=true;return;
   } else {
-    llista.innerHTML = sabates.map(s => `
-      <span class="sab-chip">
-        <span class="sab-chip-name">👟 ${s}</span>
-        <button class="sab-chip-del" onclick="eliminarSabata('${s.replace(/'/g,"\\'")}')" title="Eliminar">✕</button>
-      </span>`).join('');
+    badge.innerHTML=`<span class="notif-status default">○ Pendent de permís</span>`;
   }
 
-  // Select sabata per mesura
-  const sel = $('sab-sel');
-  sel.innerHTML = sabates.map(s => `<option value="${s}">${s}</option>`).join('');
-  $('sab-mesura-section').style.display = sabates.length ? 'block' : 'none';
+  notifEnabled=localStorage.getItem('poly_notif')==='1';
+  toggle.checked=notifEnabled;
+  timeRow.style.display=notifEnabled?'flex':'none';
+  testBtn.style.display=notifEnabled?'flex':'none';
 
-  // Cards per sabata
-  const res = $('sab-resultats');
-  if (!sabates.length || !mesures.length) {
-    res.innerHTML = '';
-    return;
+  if(notifEnabled){
+    const savedTime=localStorage.getItem('poly_notif_time')||'09:00';
+    document.getElementById('notifTime').value=savedTime;
   }
-
-  res.innerHTML = sabates.map(sab => {
-    const ms = mesures.filter(m => m.sabata === sab);
-    if (!ms.length) return '';
-
-    const avg = ms.reduce((a, m) => a + m.pct, 0) / ms.length;
-    const color = pctColor(avg);
-
-    const rows = ms.map(m => `
-      <tr>
-        <td>${new Date(m.ts).toLocaleDateString('ca-ES',{day:'2-digit',month:'short'})}</td>
-        <td style="text-transform:capitalize">${m.peu}</td>
-        <td><span class="pct-val" style="color:${pctColor(m.pct)}">${m.pct.toFixed(1)}%</span></td>
-        <td style="color:var(--muted)">${m.ritme || '—'}</td>
-        <td style="color:var(--muted);font-size:0.68rem;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.notes || ''}</td>
-        <td><button class="sab-del-row" onclick="eliminarMesura(${m.ts})">✕</button></td>
-      </tr>`).join('');
-
-    const barW = Math.min(100, avg * 2); // visual bar
-    return `
-      <div class="sab-card">
-        <div class="sab-card-header">
-          <div>
-            <div class="sab-nom-title">👟 ${sab}</div>
-            <div class="sab-avg-lbl">${ms.length} mesura${ms.length>1?'s':''}</div>
-          </div>
-          <div style="text-align:right">
-            <div class="sab-avg-badge" style="color:${color}">${avg.toFixed(2)}%</div>
-            <div class="sab-avg-lbl">Mitjana contacte</div>
-          </div>
-        </div>
-        <div class="pct-bar-wrap"><div class="pct-bar" style="width:${barW}%;background:${color}"></div></div>
-        <div style="overflow-x:auto;margin-top:0.8rem">
-          <table class="sab-table">
-            <thead><tr>
-              <th>Data</th><th>Peu</th><th>%</th><th>Ritme</th><th>Notes</th><th></th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-      </div>`;
-  }).join('');
 }
 
-// ── RITME ──
-let ascensActiu = false;
-
-function toggleAscens() {
-  ascensActiu = !ascensActiu;
-  $('ascens-toggle').classList.toggle('on', ascensActiu);
-  $('ascens-section').style.display = ascensActiu ? 'block' : 'none';
-}
-
-function minToStr(totalMin) {
-  const m = Math.floor(totalMin);
-  const s = Math.round((totalMin - m) * 60);
-  return `${m}'${String(s).padStart(2,'0')}"`;
-}
-
-function secsToHMS(secs) {
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = Math.round(secs % 60);
-  if (h > 0) return `${h}h ${String(m).padStart(2,'0')}m`;
-  return `${m}m ${String(s).padStart(2,'0')}s`;
-}
-
-function calcRitme() {
-  const km    = getDist();
-  const secs  = getTempsSecs();
-  const ritme = getRitmeMin();
-  const asc   = parseInt($('p-asc').value) || 0;
-
-  // Necessitem almenys 2 dels 3 camps
-  const teKm    = km > 0;
-  const teSecs  = secs > 0;
-  const teRitme = ritme > 0;
-  const count   = (teKm ? 1:0) + (teSecs ? 1:0) + (teRitme ? 1:0);
-
-  if (count < 2) {
-    alert('Introdueix almenys 2 d\'aquests 3 camps: Distància, Temps o Ritme.');
-    return;
-  }
-
-  // Calcula el 3r que falte
-  let kmFinal, secsFinal, ritmeFinal;
-
-  if (teKm && teSecs) {
-    kmFinal    = km;
-    secsFinal  = secs;
-    ritmeFinal = (secs / 60) / km;
-    setRitme(ritmeFinal);
-  } else if (teKm && teRitme) {
-    kmFinal    = km;
-    ritmeFinal = ritme;
-    secsFinal  = km * ritme * 60;
-    setTemps(secsFinal);
-  } else { // teSecs && teRitme
-    secsFinal  = secs;
-    ritmeFinal = ritme;
-    kmFinal    = (secs / 60) / ritme;
-    setDist(kmFinal);
-  }
-
-  const totalMin = secsFinal / 60;
-  const vel      = kmFinal / (totalMin / 60);
-
-  $('pr-ritme').textContent = minToStr(ritmeFinal);
-  $('pr-vel').textContent   = vel.toFixed(2);
-  $('pr-temps').textContent = secsToHMS(secsFinal);
-
-  if (ascensActiu && asc > 0) {
-    const extraSecs = asc * 1.74;
-    const equivSecs = Math.max(0, secsFinal - extraSecs);
-    const ritmeAj   = (equivSecs / 60) / kmFinal;
-    $('pr-ritme-aj').textContent    = minToStr(ritmeAj);
-    $('pr-temps-eq').textContent    = secsToHMS(equivSecs);
-    $('pr-temps-extra').textContent = '−' + secsToHMS(extraSecs);
-    $('ritme-ajustat-block').style.display = 'block';
+async function requestAndEnableNotif(){
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    notifEnabled=true;
+    localStorage.setItem('poly_notif','1');
+    scheduleDaily();
+    showToast('✓ Notificacions activades!','success');
   } else {
-    $('ritme-ajustat-block').style.display = 'none';
+    showToast('Permís denegat','error');
   }
-
-  $('ritme-result').style.display = 'block';
-  $('ritme-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  updateNotifUI();
 }
 
-function resetRitme() {
-  ['p-km','p-h','p-m','p-s','p-asc'].forEach(id => $(id).value = '');
-  $('ritme-result').style.display = 'none';
-  if (ascensActiu) toggleAscens();
+function disableNotif(){
+  notifEnabled=false;
+  localStorage.setItem('poly_notif','0');
+  showToast('Notificacions desactivades');
+  updateNotifUI();
 }
 
-// ── DADES ──
-function renderDadesResum() {
-  const sessions = getSessions();
-  const sabates  = getSabates();
-  const mesures  = getMesures();
-  const el = $('dades-resum');
+function scheduleDaily(){
+  if(!notifEnabled||Notification.permission!=='granted')return;
+  const timeVal=localStorage.getItem('poly_notif_time')||'09:00';
+  const [h,m]=timeVal.split(':').map(Number);
+  const now2=new Date();
+  const target=new Date(now2.getFullYear(),now2.getMonth(),now2.getDate(),h,m,0,0);
+  if(target<=now2)target.setDate(target.getDate()+1);
+  const delay=target-now2;
 
-  if (!sessions.length && !sabates.length && !mesures.length) {
-    el.innerHTML = '<span style="color:var(--muted)">No hi ha dades guardades.</span>';
-    return;
-  }
-
-  const avgTassa = sessions.length
-    ? Math.round(sessions.reduce((s,x) => s + x.tassa, 0) / sessions.length)
-    : null;
-  const totalBytes = JSON.stringify({sessions, sudorlab_sabates: sabates, sudorlab_mesures: mesures}).length;
-
-  el.innerHTML = `
-    ${sessions.length ? `💧 <strong>${sessions.length}</strong> sessions · Tassa mitja: <strong>${avgTassa} mL/h</strong><br>` : ''}
-    ${sabates.length  ? `👟 <strong>${sabates.length}</strong> sabates · <strong>${mesures.length}</strong> mesures de contacte<br>` : ''}
-    ${sessions.length ? `📅 Del <strong>${new Date(Math.min(...sessions.map(s=>s.ts))).toLocaleDateString('ca-ES')}</strong> al <strong>${new Date(Math.max(...sessions.map(s=>s.ts))).toLocaleDateString('ca-ES')}</strong><br>` : ''}
-    💾 Espai usat: <strong>~${(totalBytes/1024).toFixed(1)} KB</strong>
-  `;
-}
-
-function exportarDades() {
-  const sessions = getSessions();
-  const sabates  = getSabates();
-  const mesures  = getMesures();
-  if (!sessions.length && !sabates.length && !mesures.length) {
-    alert('No hi ha dades per exportar.'); return;
-  }
-  const data = {
-    versio: 1,
-    exportat: new Date().toISOString(),
-    sessions,
-    sudorlab_sabates: sabates,
-    sudorlab_mesures: mesures
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `sudorlab_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function exportarCSV() {
-  const sessions = getSessions();
-  const mesures  = getMesures();
-  if (!sessions.length && !mesures.length) { alert('No hi ha dades per exportar.'); return; }
-
-  let csv = '';
-
-  // Bloc sessions sudoració
-  if (sessions.length) {
-    csv += 'SESSIONS SUDORACIÓ\n';
-    const caps = ['Data','Tassa mL/h','Pes Abans','Pes Despres','Liquid mL','Orina mL','Durada min','Ritme','FC','Calories','Temp','Humetat','Perdua mL','Pct Pes'];
-    const rows = sessions.map(s => [
-      new Date(s.ts).toLocaleDateString('ca-ES'),
-      s.tassa, s.pesBefore, s.pesAfter, s.liquid, s.orina,
-      s.durada ? Math.round(s.durada) : '', s.ritme || '', s.fc || '', s.calories || '',
-      s.temp, s.humetat || '', s.perdua, s.pct
-    ].join(','));
-    csv += caps.join(',') + '\n' + rows.join('\n') + '\n\n';
-  }
-
-  // Bloc mesures sabates
-  if (mesures.length) {
-    csv += 'MESURES SABATES\n';
-    const caps2 = ['Data','Sabata','Peu','% Contacte','Ritme','Notes'];
-    const rows2 = mesures.slice().sort((a,b) => b.ts-a.ts).map(m => [
-      new Date(m.ts).toLocaleDateString('ca-ES'),
-      `"${m.sabata}"`, m.peu, m.pct, m.ritme || '', `"${m.notes || ''}"`
-    ].join(','));
-    csv += caps2.join(',') + '\n' + rows2.join('\n') + '\n';
-  }
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `sudorlab_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importarDades(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      let afegidesSessions = 0, afegidesSabates = 0, afegidesMesures = 0;
-
-      // ── Sessions de sudoració ──
-      const novesSessions = data.sessions || (Array.isArray(data) ? data : []);
-      if (novesSessions.length) {
-        const existents = getSessions();
-        const tsEx = new Set(existents.map(s => s.ts));
-        const noves = novesSessions.filter(s => !tsEx.has(s.ts));
-        if (noves.length) { saveSessions([...noves, ...existents]); afegidesSessions = noves.length; }
+  // Usar SW si disponible, si no fallback a setTimeout
+  if(swReg&&swReg.active){
+    swReg.active.postMessage({type:'SCHEDULE_NOTIFICATION',title:'🗣️ Poliglota Diari',body:`Hora de practicar les teues 4 llengües! 💪`,delay});
+  } else {
+    setTimeout(()=>{
+      if(Notification.permission==='granted'){
+        new Notification('🗣️ Poliglota Diari',{body:`Hora de practicar les teues 4 llengües! 💪`,tag:'poliglota-daily'});
       }
+      scheduleDaily();
+    },delay);
+  }
+}
 
-      // ── Sabates (noms) ──
-      if (Array.isArray(data.sudorlab_sabates) && data.sudorlab_sabates.length) {
-        const existents = getSabates();
-        const noves = data.sudorlab_sabates.filter(s => !existents.includes(s));
-        if (noves.length) { saveSabates([...existents, ...noves]); afegidesSabates = noves.length; }
-      }
+function sendTestNotif(){
+  if(Notification.permission!=='granted'){showToast('Primer activa les notificacions','error');return;}
+  new Notification('🧪 Prova — Poliglota Diari',{body:'Les notificacions funcionen correctament! ✓',tag:'poly-test'});
+  showToast('Notificació de prova enviada!','success');
+}
 
-      // ── Mesures de sabates ──
-      if (Array.isArray(data.sudorlab_mesures) && data.sudorlab_mesures.length) {
-        const existents = getMesures();
-        const tsEx = new Set(existents.map(m => m.ts));
-        const noves = data.sudorlab_mesures.filter(m => !tsEx.has(m.ts));
-        if (noves.length) { saveMesures([...noves, ...existents]); afegidesMesures = noves.length; }
-      }
+document.getElementById('notifToggle').addEventListener('change',e=>{
+  if(e.target.checked) requestAndEnableNotif();
+  else disableNotif();
+});
+document.getElementById('notifTime').addEventListener('change',e=>{
+  localStorage.setItem('poly_notif_time',e.target.value);
+  if(notifEnabled){scheduleDaily();showToast('Hora actualitzada ✓','success');}
+});
+document.getElementById('testNotifBtn').addEventListener('click',sendTestNotif);
 
-      const st = $('import-status');
-      const parts = [];
-      if (afegidesSessions) parts.push(`${afegidesSessions} sessions`);
-      if (afegidesSabates)  parts.push(`${afegidesSabates} sabates`);
-      if (afegidesMesures)  parts.push(`${afegidesMesures} mesures`);
-      st.textContent = parts.length
-        ? `✓ Importat: ${parts.join(', ')}`
-        : '⚠ Cap dada nova (tot ja existia)';
-      st.style.display = 'block';
-      renderDadesResum();
-      event.target.value = '';
-    } catch(err) {
-      alert('Error llegint el fitxer: ' + err.message);
+// ══════════════════════════════════════════════════════════════
+// EXPORTAR / IMPORTAR
+// ══════════════════════════════════════════════════════════════
+function getAllData(){
+  const data={version:2,exportedAt:new Date().toISOString(),entries:{}};
+  allPolyKeys().forEach(k=>{
+    try{data.entries[k]=JSON.parse(localStorage.getItem(k));}catch{}
+  });
+  return data;
+}
+
+function updateDataInfo(){
+  const keys=allPolyKeys();
+  let total=0;keys.forEach(k=>{try{const s=JSON.parse(localStorage.getItem(k));if(s&&s.length)total+=s.length;}catch{}});
+  document.getElementById('dataInfo').textContent=`${keys.length} dies registrats · ${total} tasques completades`;
+}
+
+function downloadFile(content,filename,mime){
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+}
+
+document.getElementById('exportJsonBtn').addEventListener('click',()=>{
+  const data=getAllData();
+  const dateStr=new Date().toISOString().slice(0,10);
+  downloadFile(JSON.stringify(data,null,2),`poliglota_backup_${dateStr}.json`,'application/json');
+  showToast('✓ JSON exportat correctament','success');
+});
+
+document.getElementById('exportCsvBtn').addEventListener('click',()=>{
+  const keys=allPolyKeys().sort();
+  let csv='Data,Any,Mes,Dia,Tasca 1 (Escoltar),Tasca 2 (Escoltar),Tasca 3 (Llegir),Tasca 4 (Parlar),Total,Complet\n';
+  keys.forEach(k=>{
+    const m=k.match(/^poly_(\d{4})_(\d{2})_(\d{2})$/);if(!m)return;
+    const [,y,mo,d]=[...m].map(Number);
+    const set=loadSet(y,mo,d);if(set.size===0)return;
+    const tasks=getRot(d,mo,y);
+    const dateStr=`${d.toString().padStart(2,'0')}/${mo.toString().padStart(2,'0')}/${y}`;
+    const t1=set.has(0)?`${tasks[0].action} ${tasks[0].lang}`:'';
+    const t2=set.has(1)?`${tasks[1].action} ${tasks[1].lang}`:'';
+    const t3=set.has(2)?`${tasks[2].action} ${tasks[2].lang}`:'';
+    const t4=set.has(3)?`${tasks[3].action} ${tasks[3].lang}`:'';
+    csv+=`${dateStr},${y},${mo},${d},"${t1}","${t2}","${t3}","${t4}",${set.size},${set.size===4?'Sí':'No'}\n`;
+  });
+  const dateStr=new Date().toISOString().slice(0,10);
+  downloadFile(csv,`poliglota_export_${dateStr}.csv`,'text/csv;charset=utf-8;');
+  showToast('✓ CSV exportat correctament','success');
+});
+
+document.getElementById('importBtn').addEventListener('click',()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.entries)throw new Error('Format invàlid');
+      let imported=0;
+      Object.entries(data.entries).forEach(([k,v])=>{
+        if(k.startsWith('poly_')&&Array.isArray(v)){
+          localStorage.setItem(k,JSON.stringify(v));imported++;
+        }
+      });
+      showToast(`✓ ${imported} dies importats correctament`,'success');
+      todaySet=loadSet(RY,RM,RD);
+      renderAvui();updateDataInfo();
+    }catch(err){
+      showToast('Error: fitxer invàlid o corrupte','error');
     }
   };
   reader.readAsText(file);
-}
-
-function esborrarTot() {
-  const sessions = getSessions();
-  const mesures  = getMesures();
-  const sabates  = getSabates();
-  const total = sessions.length + mesures.length + sabates.length;
-  if (!total) { alert('No hi ha dades.'); return; }
-  if (!confirm(`Segur que vols eliminar tot?\n· ${sessions.length} sessions de sudoració\n· ${sabates.length} sabates\n· ${mesures.length} mesures\n\nAquesta acció no es pot desfer.`)) return;
-  localStorage.removeItem('sudorlab_sessions');
-  localStorage.removeItem('sudorlab_sabates');
-  localStorage.removeItem('sudorlab_mesures');
-  renderDadesResum();
-  alert('Totes les dades han estat eliminades.');
-}
-
-
-// SW
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-
-// ── INSTAL·LACIÓ PWA ──
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-btn').style.display = 'block';
+  e.target.value='';
 });
 
-function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(choice => {
-    if (choice.outcome === 'accepted') {
-      document.getElementById('install-btn').style.display = 'none';
-    }
-    deferredPrompt = null;
+// ══════════════════════════════════════════════════════════════
+// ESBORRAR DADES
+// ══════════════════════════════════════════════════════════════
+document.getElementById('deleteAllBtn').addEventListener('click',()=>{
+  document.getElementById('deleteModal').classList.add('show');
+});
+document.getElementById('deleteCancel').addEventListener('click',()=>{
+  document.getElementById('deleteModal').classList.remove('show');
+});
+document.getElementById('deleteConfirm').addEventListener('click',()=>{
+  allPolyKeys().forEach(k=>localStorage.removeItem(k));
+  todaySet=new Set();renderAvui();updateDataInfo();
+  document.getElementById('deleteModal').classList.remove('show');
+  showToast('Totes les dades esborrades','error');
+});
+
+// ══════════════════════════════════════════════════════════════
+// NAVEGACIÓ
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='historic')renderHistoric();
+    if(tab.dataset.tab==='stats')renderStats();
+    if(tab.dataset.tab==='ajustos'){updateNotifUI();updateDataInfo();}
   });
-}
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-btn').style.display = 'none';
-  deferredPrompt = null;
 });
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+renderAvui();
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    swReg=reg;
+    // Reprogram notification on page load if enabled
+    if(localStorage.getItem('poly_notif')==='1'&&Notification.permission==='granted'){
+      scheduleDaily();
+    }
+  }).catch(()=>{});
+}
 </script>
 </body>
 </html>
